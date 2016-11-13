@@ -54,11 +54,11 @@ public class MobiTest {
 		assertEquals(22, doc.getMobiHeader().getEXTHRecords().size());
 		
 		List<StringRecordDelegate> subjectRecords = doc.getMetaData().getSubjectRecords();
-		assertEquals("Fairy tales", subjectRecords.get(0).getStringData(UTF_8));
-		assertEquals("Folklore -- Japan", subjectRecords.get(1).getStringData(UTF_8));
+		assertEquals("Fairy tales", subjectRecords.get(0).getAsString(UTF_8));
+		assertEquals("Folklore -- Japan", subjectRecords.get(1).getAsString(UTF_8));
 		
 		DateRecordDelegate dateRecordDelegate = doc.getMetaData().getPublishingDateRecords().get(0);
-		assertEquals("2007-11-07", dateRecordDelegate.getStringData(UTF_8));
+		assertEquals("2007-11-07", dateRecordDelegate.getAsString(UTF_8));
 		
 		assertEquals("de", doc.getMetaData().getLanguageRecord().getLanguageCode());
 	}
@@ -111,7 +111,7 @@ public class MobiTest {
 		
 		ISBNRecordDelegate isbnRecord = isbnRecords.get(0);
 		
-		assertEquals(isbn13, isbnRecord.getStringData(doc.getCharacterEncoding()));
+		assertEquals(isbn13, isbnRecord.getAsString(doc.getCharacterEncoding()));
 		assertTrue(isbnRecord.isIsbn13());
 		assertEquals("9783120048114", isbnRecord.getAsIsbn13());
 		assertEquals("3120048119", isbnRecord.getAsIsbn10());

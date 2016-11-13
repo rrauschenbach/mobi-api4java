@@ -7,5 +7,9 @@ import org.rr.mobi4java.EXTHRecord;
  */
 public interface RecordDelegate {
 
+	/**
+	 * @return The underlying {@link EXTHRecord} instance which is covered by this {@link RecordDelegate}.
+	 */
 	public EXTHRecord getRecord();
+	
 }

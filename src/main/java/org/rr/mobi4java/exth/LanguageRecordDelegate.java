@@ -46,9 +46,13 @@ public class LanguageRecordDelegate implements RecordDelegate {
 	 * @see languagecodes.txt
 	 */
 	public void setLanguageCode(String code) {
+		if(code == null) {
+			throw new IllegalArgumentException("Language code must no be null.");
+		}
+		
 		for (String languageCode : languageCodes) {
 			if (StringUtils.equals(code, languageCode)) {
-				record.setData(getBytes(code));
+				record.setData(getBytes(languageCode));
 				return;
 			}
 		}
@@ -67,5 +71,4 @@ public class LanguageRecordDelegate implements RecordDelegate {
 	public EXTHRecord getRecord() {
 		return record;
 	}
-
 }

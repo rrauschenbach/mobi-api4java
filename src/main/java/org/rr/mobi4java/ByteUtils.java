@@ -1,5 +1,7 @@
 package org.rr.mobi4java;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -54,6 +56,10 @@ public class ByteUtils {
 	}
 
 	public static String getString(byte[] buffer, String encoding) {
+		if(buffer == null || buffer.length == 0) {
+			return EMPTY;
+		}
+		
 		int len = buffer.length;
 		int zeroIndex = -1;
 		for (int i = 0; i < len; i++) {
@@ -133,7 +139,7 @@ public class ByteUtils {
 		return s.getBytes();
 	}
 	
-	static String dumpByteArray(byte[] buffer) {
+	public static String dumpByteArray(byte[] buffer) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
 		int len = buffer.length;

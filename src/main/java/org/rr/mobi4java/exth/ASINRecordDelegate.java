@@ -26,7 +26,7 @@ public class ASINRecordDelegate extends StringRecordDelegate implements RecordDe
 	}
 	
 	public String getASIN() {
-		return getStringData(UTF_8);
+		return getAsString(UTF_8);
 	}
 	
 	private boolean isValidASIN(String asin) {
@@ -35,5 +35,4 @@ public class ASINRecordDelegate extends StringRecordDelegate implements RecordDe
 		}
 		return Pattern.compile("[a-zA-Z0-9]{10}").matcher(asin).matches();
 	}
-	
 }

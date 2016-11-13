@@ -32,7 +32,7 @@ public class EXTHRecordFactory {
 	}
 	
 	/**
-	 * Create a new asin record.
+	 * Create a new asin record with the given asin as value.
 	 * 
 	 * @param asinCode The asin code which must be a member of the list returned with
 	 *          {@link EXTHasinRecordDelegate#getasinCodes()}.
@@ -40,7 +40,7 @@ public class EXTHRecordFactory {
 	 * @throws IllegalArgumentException if the given code is not valid.
 	 */
 	public static ASINRecordDelegate createASINRecord(String asin) {
-		assertNotNull(RECORD_TYPE.ISBN, asin);
+		assertNotNull(RECORD_TYPE.ASIN, asin);
 		
 		EXTHRecord record = createEXTHRecord(RECORD_TYPE.ASIN);
 		ASINRecordDelegate recordDelegate = new ASINRecordDelegate(record);
@@ -49,7 +49,7 @@ public class EXTHRecordFactory {
 	}
 	
 	/**
-	 * Create a new isbn record.
+	 * Create a new isbn record with the given isbn as value.
 	 * 
 	 * @param isbnCode The isbn code which must be a member of the list returned with
 	 *          {@link EXTHisbnRecordDelegate#getisbnCodes()}.
@@ -66,7 +66,7 @@ public class EXTHRecordFactory {
 	}
 	
 	/**
-	 * Create a new language record.
+	 * Create a new language record with the given language as value.
 	 * 
 	 * @param languageCode The language code which must be a member of the list returned with
 	 *          {@link LanguageRecordDelegate#getLanguageCodes()}.
@@ -83,7 +83,7 @@ public class EXTHRecordFactory {
 	}
 	
 	/**
-	 * Create a new string record for the given record type. Please note that only some record types fits to a string type.
+	 * Create a new string record for the given record type and the given string as value. Please note that only some record types fits to a string type.
 	 * 
 	 * @param recordType The record type for the result {@link StringRecordDelegate}.
 	 * @param str The string value of the new record.

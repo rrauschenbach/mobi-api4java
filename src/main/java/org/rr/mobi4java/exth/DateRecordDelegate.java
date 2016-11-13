@@ -12,7 +12,7 @@ import org.rr.mobi4java.EXTHRecord;
 
 public class DateRecordDelegate extends StringRecordDelegate implements RecordDelegate {
 	
-	private static final String[] DATE_PATTERN = new String[] {"yyyy-MM-dd"};
+	private static final String[] DATE_PATTERN = new String[] {"yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssZ"};
 	
 	public DateRecordDelegate(EXTHRecord record) {
 		super(record);
@@ -25,7 +25,7 @@ public class DateRecordDelegate extends StringRecordDelegate implements RecordDe
 	 * @throws ParseException 
 	 */
 	public Date getAsDate() throws ParseException {
-		return DateUtils.parseDate(getStringData(UTF_8), DATE_PATTERN);
+		return DateUtils.parseDate(getAsString(UTF_8), DATE_PATTERN);
 	}
 
 	/**
@@ -39,10 +39,9 @@ public class DateRecordDelegate extends StringRecordDelegate implements RecordDe
 			throw new IllegalArgumentException("Value must not be null.");
 		}
 		try {
-			setStringData(DateFormatUtils.format(date, "yyyy-MM-dd"), UTF_8);
+			setStringData(DateFormatUtils.format(date, "yyyy-MM-dd'T'HH:mm:ssZ"), UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("Failed to set date " + date, e);
 		}
 	}
-
 }

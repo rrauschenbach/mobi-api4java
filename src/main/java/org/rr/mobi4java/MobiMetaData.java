@@ -27,8 +27,27 @@ public class MobiMetaData {
 	 *          {@link MobiMetaData} instance.
 	 * @return <code>true</code> if the given element has been removed.
 	 */
-	public boolean removeEXTHRecord(EXTHRecord record) {
+	public boolean removeEXTHRecord(EXTHRecord record ) {
 		return mobiHeader.getEXTHRecords().remove(record);
+	}
+	
+	/**
+	 * Remove all record instances which are a member of the meta data of the mobi document.
+	 * 
+	 * @param records The records to be removed. This records must be an instance which was previously fetched from this
+	 *          {@link MobiMetaData} instance.
+	 */
+	public void removeEXTHRecords(EXTHRecord ... records) {
+		for (EXTHRecord record : records) {
+			mobiHeader.getEXTHRecords().remove(record);			
+		}
+	}
+
+	/**
+	 * Remove all records from the meta data of the mobi document.
+	 */
+	public void removeAllEXTHRecords() {
+		mobiHeader.getEXTHRecords().clear();
 	}
 	
 	/**
@@ -126,6 +145,54 @@ public class MobiMetaData {
 	 */
 	public List<DateRecordDelegate> getPublishingDateRecords() {
 		return MobiUtils.createDateRecords(getEXTHRecords(), RECORD_TYPE.PUBLISHING_DATE);
+	}
+	
+	/**
+	 * Get the 'review' records from the exth records. Changes to the returned record delegates will be applied to the real record which must
+	 * be a member from the records which can be fetched with the {@link #getEXTHRecords()} method.
+	 * 
+	 * @return The 'review' record delegates or an empty list if the mobi header have no 'review' records defined. Never returns
+	 *         <code>null</code>.
+	 * @see #getEXTHRecords()
+	 */
+	public List<StringRecordDelegate> getReviewRecords() {
+		return MobiUtils.createStringRecords(getEXTHRecords(), RECORD_TYPE.REVIEW);
+	}
+
+	/**
+	 * Get the 'contributor' records from the exth records. Changes to the returned record delegates will be applied to the real record which must
+	 * be a member from the records which can be fetched with the {@link #getEXTHRecords()} method.
+	 * 
+	 * @return The 'contributor' record delegates or an empty list if the mobi header have no 'contributor' records defined. Never returns
+	 *         <code>null</code>.
+	 * @see #getEXTHRecords()
+	 */
+	public List<StringRecordDelegate> getContributorRecords() {
+		return MobiUtils.createStringRecords(getEXTHRecords(), RECORD_TYPE.CONTRIBUTOR);
+	}
+	
+	/**
+	 * Get the 'rights' records from the exth records. Changes to the returned record delegates will be applied to the real record which must
+	 * be a member from the records which can be fetched with the {@link #getEXTHRecords()} method.
+	 * 
+	 * @return The 'rights' record delegates or an empty list if the mobi header have no 'rights' records defined. Never returns
+	 *         <code>null</code>.
+	 * @see #getEXTHRecords()
+	 */
+	public List<StringRecordDelegate> getRightsRecords() {
+		return MobiUtils.createStringRecords(getEXTHRecords(), RECORD_TYPE.RIGHTS);
+	}
+	
+	/**
+	 * Get the 'source' records from the exth records. Changes to the returned record delegates will be applied to the real record which must
+	 * be a member from the records which can be fetched with the {@link #getEXTHRecords()} method.
+	 * 
+	 * @return The 'source' record delegates or an empty list if the mobi header have no 'source' records defined. Never returns
+	 *         <code>null</code>.
+	 * @see #getEXTHRecords()
+	 */
+	public List<StringRecordDelegate> getSourceRecords() {
+		return MobiUtils.createStringRecords(getEXTHRecords(), RECORD_TYPE.SOURCE);
 	}
 	
 	/**

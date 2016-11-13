@@ -35,7 +35,7 @@ public class ISBNRecordDelegate extends StringRecordDelegate implements RecordDe
 	}
 
 	public String getIsbn() {
-		return getStringData(UTF_8);
+		return getAsString(UTF_8);
 	}
 	
 	public String getAsIsbn13() {

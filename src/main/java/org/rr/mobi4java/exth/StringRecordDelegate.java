@@ -23,7 +23,7 @@ public class StringRecordDelegate implements RecordDelegate {
 	 * @param encoding The character encoding for the result string. Use {@link MobiDocument#getCharacterEncoding()}.
 	 * @return A new string instance from the data of this {@link EXTHRecord} instance.
 	 */
-	public String getStringData(String encoding) {
+	public String getAsString(String encoding) {
 		return getString(record.getData(), encoding);
 	}
 

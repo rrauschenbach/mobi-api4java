@@ -201,8 +201,8 @@ public class EXTHRecord {
 		return recordData;
 	}
 	
-	public void setData(byte[] value) {
-		recordData = value;
+	public void setData(byte[] recordData) {
+		this.recordData = recordData;
 	}
 
 	public int getIntData() {

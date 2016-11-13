@@ -10,12 +10,27 @@ public class MobiWriter {
 	
 	private static final byte[] MOBI_EOF = new byte[] {(byte) 0xeE9, (byte) 0x8E, 0x0D, 0x0A};
 
+	/**
+	 * Write the mobipocket document to the given {@link File}. 
+	 * 
+	 * @param doc The {@link MobiDocument} instance which should be written to the given {@link File}.
+	 * @param file The {@link File} where the mobipocket data will be written to.
+	 * @throws IOException
+	 */
 	public void write(MobiDocument doc, File file) throws IOException {
 		try(BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 			write(doc, out);
 		}
 	}
 	
+	/**
+	 * Write the mobipocket document to the given {@link OutputStream}. Note that the given {@link OutputStream} won't be closed here. You
+	 * have to close it by your own.
+	 * 
+	 * @param doc The {@link MobiDocument} instance which should be written to the given {@link OutputStream}.
+	 * @param out The {@link OutputStream} where the mobipocket data will be written to.
+	 * @throws IOException
+	 */
 	public void write(MobiDocument doc, OutputStream out) throws IOException {
 		doc.getPdbHeader().writeHeader(doc.getMobiHeader(), doc.getMobiContents(), out);
 		byte[] written = null; 
