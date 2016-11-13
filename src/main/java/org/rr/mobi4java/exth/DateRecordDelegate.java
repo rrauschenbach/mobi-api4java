@@ -12,7 +12,7 @@ import org.rr.mobi4java.EXTHRecord;
 
 public class DateRecordDelegate extends StringRecordDelegate implements RecordDelegate {
 	
-	private static final String[] DATE_PATTERN = new String[] {"yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssZ"};
+	private static final String[] DATE_PATTERN = new String[] {"yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssZ", "yyyy"};
 	
 	public DateRecordDelegate(EXTHRecord record) {
 		super(record);
