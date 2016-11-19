@@ -1,22 +1,23 @@
 package org.rr.mobi4java;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.rr.mobi4java.exth.DateRecordDelegate;
 import org.rr.mobi4java.exth.ISBNRecordDelegate;
 import org.rr.mobi4java.exth.StringRecordDelegate;
-import static org.apache.commons.lang.CharEncoding.UTF_8;
-import static org.apache.commons.lang.CharEncoding.UTF_8;
 
 
 public class MobiTest {
@@ -46,7 +47,12 @@ public class MobiTest {
 		assertTrue(textContent.startsWith("<html>"));
 		assertTrue(textContent.endsWith("</html>"));
 
-		assertEquals(2, doc.getImages().size());
+		int i=0;
+		for (byte[] image : doc.getImages()) {
+			FileUtils.writeByteArrayToFile(new File("/tmp/" + i++ + ".jpg"), image);
+		}
+		
+		assertEquals(3, doc.getImages().size());
 		assertNotNull(doc.getCover());
 		assertNotNull(doc.getThumbnail());
 		

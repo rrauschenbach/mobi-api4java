@@ -7,6 +7,8 @@ import static org.rr.mobi4java.ByteUtils.write;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class MobiContent {
 	
 	public enum TYPE {
@@ -140,4 +142,11 @@ public class MobiContent {
 		return startsWith(content, "VIDE".getBytes());
 	}
 
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("contentType", guessContentType())
+				.append("dataType", guessDataType())
+				.append("content", ByteUtils.dumpByteArray(content))
+				.toString();
+	}
 }
