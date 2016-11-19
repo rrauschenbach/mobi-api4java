@@ -12,7 +12,12 @@ import org.rr.mobi4java.EXTHRecord;
 
 public class DateRecordDelegate extends StringRecordDelegate implements RecordDelegate {
 	
-	private static final String[] DATE_PATTERN = new String[] {"yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ssZ", "yyyy"};
+	private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
+	
+	private static final String[] DATE_PATTERN = new String[] { DEFAULT_DATE_FORMAT_PATTERN, "yyyy-MM-dd", "dd.MM.yyyy", "MM/dd/yyyy",
+			"yyyy/MM/dd", "yyyy.dd.MM", "yyyy-'W'ww-d", "yyyy-MM-dd hh:mm'Z'", "yyyy-MM-dd hh:mm:Z", "EEE, dd MMM yyyy HH:mm:ss z",
+			"EEE, dd MMM yyyy HH:mm z", "dd MMM yyyy HH:mm:ss z", "EEE MMM dd HH:mm:ss z yyyy", "yyyyMMddhhmmssZ", "yyyyMMddhhmmZ",
+			"yyyyMMddhhmmss", "yyyyMMddhhmm", "yyyyMMddhhmmZ", "'D:'yyyyMMddHHmmZ", "yyyy" };
 	
 	public DateRecordDelegate(EXTHRecord record) {
 		super(record);
@@ -39,7 +44,7 @@ public class DateRecordDelegate extends StringRecordDelegate implements RecordDe
 			throw new IllegalArgumentException("Value must not be null.");
 		}
 		try {
-			setStringData(DateFormatUtils.format(date, "yyyy-MM-dd'T'HH:mm:ssZ"), UTF_8);
+			setStringData(DateFormatUtils.format(date, DEFAULT_DATE_FORMAT_PATTERN), UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("Failed to set date " + date, e);
 		}

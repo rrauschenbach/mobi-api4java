@@ -1,7 +1,7 @@
 package org.rr.mobi4java.exth;
 
-import static junit.framework.Assert.assertEquals;
 import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -41,7 +41,7 @@ public class DateRecordDelegateTest {
 	public void testInvalidDateRecord() throws ParseException, UnsupportedEncodingException {
 		Date date = DateUtils.parseDate("2001-11-11", new String[] {"yyyy-MM-dd"});
 		DateRecordDelegate record = EXTHRecordFactory.createDateRecord(RECORD_TYPE.PUBLISHING_DATE, date);
-		record.setStringData("23.09.2016", UTF_8);
+		record.setStringData("23+09+2016", UTF_8);
 		record.getAsDate();
 	}
 }
