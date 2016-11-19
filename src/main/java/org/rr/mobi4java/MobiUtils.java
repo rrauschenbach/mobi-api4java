@@ -54,16 +54,14 @@ class MobiUtils {
 			int b2 = getInt(data, 1, 1);
 			int b3 = getInt(data, 2, 1);
 			int b4 = getInt(data, 3, 1);
-			int l1 = getInt(data, data.length - 2, 1);
-			int l2 = getInt(data, data.length - 1, 1);
 	
 			if (b1 == 0x47 && b2 == 0x49) {
 				return true; // image/gif
 			} else if (b1 == 0x89 && b2 == 0x50) {
 				return true; // image/png
-			} else if (b1 == 0xFF && b2 == 0xD8 && l1 == 0xFF && l2 == 0xD9) {
+			} else if (b1 == 0xFF && b2 == 0xD8) {
 				return true; // image/jpeg
-			} else if (b1 == 0xFF && b2 == 0xD9 && l1 == 0xFF && l2 == 0xD9) {
+			} else if (b1 == 0xFF && b2 == 0xD9) {
 				return true; // image/jpeg
 			} else if (b1 == 0x42 && b2 == 0x4D) {
 				return true; // image/bmp
