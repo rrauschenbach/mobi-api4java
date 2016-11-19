@@ -10,7 +10,7 @@ import java.io.OutputStream;
 public class MobiContent {
 	
 	public enum TYPE {
-		CONTENT, INDEX, TAGX, FLIS, FCIS, SRCS, CMET, AUDI, VIDE, END_OF_TEXT, UNKNOWN
+		CONTENT, INDEX, TAGX, FLIS, FCIS, FDST, DATP, SRCS, CMET, AUDI, VIDE, END_OF_TEXT, UNKNOWN
 	};
 	
 	byte[] content;
@@ -56,6 +56,10 @@ public class MobiContent {
 			return TYPE.FLIS;
 		} else if(isFcisRecord(content)) {
 			return TYPE.FCIS;
+		} else if(isFdstRecord(content)) {
+			return TYPE.FDST;
+		} else if(isDatpRecord(content)) {
+			return TYPE.DATP;
 		} else if(isSrcsRecord(content)) {
 			return TYPE.SRCS;
 		} else if(isCmetRecord(content)) {
@@ -96,6 +100,14 @@ public class MobiContent {
 	
 	private static boolean isFcisRecord(byte[] content) {
 		return startsWith(content, "FCIS".getBytes());
+	}
+	
+	private static boolean isFdstRecord(byte[] content) {
+		return startsWith(content, "FDST".getBytes());
+	}
+	
+	private static boolean isDatpRecord(byte[] content) {
+		return startsWith(content, "DATP".getBytes());
 	}
 	
 	/**
