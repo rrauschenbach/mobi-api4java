@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.rr.mobi4java.EXTHRecord;
@@ -30,7 +32,11 @@ public class DateRecordDelegate extends StringRecordDelegate implements RecordDe
 	 * @throws ParseException 
 	 */
 	public Date getAsDate() throws ParseException {
-		return DateUtils.parseDate(getAsString(UTF_8), DATE_PATTERN);
+		try {
+			return DatatypeConverter.parseDate(getAsString(UTF_8)).getTime();
+		} catch(Exception e) {
+			return DateUtils.parseDate(getAsString(UTF_8), DATE_PATTERN);
+		}
 	}
 
 	/**
