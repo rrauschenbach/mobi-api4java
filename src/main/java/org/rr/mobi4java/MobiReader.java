@@ -13,18 +13,45 @@ import org.apache.commons.io.IOUtils;
 
 public class MobiReader {
 
+	/**
+	 * Read and parse a mobi document from the given {@link File}.
+	 * 
+	 * @param file A {@link File} which points to a mobi document.
+	 * @return A new {@link MobiDocument} instance. Never returns <code>null</code>.
+	 * @throws IOException
+	 */
 	public MobiDocument read(File file) throws FileNotFoundException, IOException {
 		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 			return read(in);
 		}
 	}
 
+	/**
+	 * Read and parse a mobi document from the given {@link InputStream}. The given {@link InputStream} will not be closed after reading.
+	 * 
+	 * @param in {@link InputStream} which provides the mobi data to be parsed.
+	 * @return A new {@link MobiDocument} instance. Never returns <code>null</code>.
+	 * @throws IOException
+	 */
 	public MobiDocument read(InputStream in) throws IOException {
 		byte[] mobiData = IOUtils.toByteArray(in);
 		PDBHeader pdbHeader = readPDBHeader(mobiData);
 		MobiHeader mobiHeader = readMobiHeader(pdbHeader, mobiData);
 		List<MobiContent> mobiContent = readMobiContent(pdbHeader, mobiHeader, mobiData);
 		return new MobiDocument(pdbHeader, mobiHeader, mobiContent);
+	}
+	
+	/**
+	 * Creates an empty mobi document which can be used as a template for new mobi files.  
+	 * 
+	 * @return A new mobi document. Never returns <code>null</code>.
+	 */
+	public MobiDocument empty() {
+		try {
+			return read(getClass().getResourceAsStream("/template.mobi"));
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to load template.", e);
+		}
 	}
 
 	private PDBHeader readPDBHeader(byte[] mobiData) {

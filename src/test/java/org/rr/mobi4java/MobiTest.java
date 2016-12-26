@@ -3,6 +3,7 @@ package org.rr.mobi4java;
 import static org.apache.commons.lang.CharEncoding.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -89,7 +90,7 @@ public class MobiTest {
 	
 	@Test
 	public void testChangeFullName() throws IOException {
-		byte[] mobiData = IOUtils.toByteArray(MobiTest.class.getResourceAsStream("/pg23393.mobi"));
+		byte[] mobiData = IOUtils.toByteArray(getClass().getResourceAsStream("/pg23393.mobi"));
 		MobiDocument doc = readDoc(mobiData);
 
 		doc.setFullName("TEST");
@@ -103,7 +104,7 @@ public class MobiTest {
 	@Test
 	public void testAddISBN() throws IOException {
 		String isbn13 = "978-3-12-004811-4";
-		byte[] mobiData = IOUtils.toByteArray(MobiTest.class.getResourceAsStream("/pg23393.mobi"));
+		byte[] mobiData = IOUtils.toByteArray(getClass().getResourceAsStream("/pg23393.mobi"));
 		MobiDocument doc = readDoc(mobiData);
 
 		ISBNRecordDelegate recordDelegate = EXTHRecordFactory.createISBNRecord(isbn13);
@@ -123,13 +124,24 @@ public class MobiTest {
 		assertEquals("3120048119", isbnRecord.getAsIsbn10());
 	}
 	
+	@Test
+	public void testCreateEmptyMobiDocument() throws IOException {
+		MobiDocument doc = new MobiReader().empty();
+		assertNotNull(doc);
+		assertEquals("<html><head><guide></guide></head><body><p></p> </body></html>", doc.getTextContent());
+		assertEquals("template", doc.getFullName());
+		assertTrue(doc.getImageContents().isEmpty());
+		assertEquals("UTF-8", doc.getCharacterEncoding());
+		assertTrue(doc.getImages().isEmpty());
+		assertNull(doc.getThumbnail());
+	}
+	
 	private MobiDocument createReader(byte[] mobiData) throws IOException {
-		MobiDocument doc = readDoc(mobiData);
-		return doc;
+		return readDoc(mobiData);
 	}
 
 	private byte[] getResourceData(String resource) throws IOException {
-		return IOUtils.toByteArray(MobiTest.class.getResourceAsStream(resource));
+		return IOUtils.toByteArray(getClass().getResourceAsStream(resource));
 	}
 
 	private MobiDocument readDoc(byte[] newMobiData) throws IOException {

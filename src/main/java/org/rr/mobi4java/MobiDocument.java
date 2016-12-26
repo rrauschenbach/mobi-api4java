@@ -49,6 +49,11 @@ public class MobiDocument {
 		return mobiMetaData;
 	}
 	
+	/**
+	 * Get the image bytes for the cover of this {@link MobiDocument}.
+	 * 
+	 * @return The cover bytes or <code>null</code> if no cover was found.
+	 */
 	public byte[] getCover() {
 		return getCoverByType(RECORD_TYPE.COVER_OFFSET);
 	}
@@ -74,6 +79,11 @@ public class MobiDocument {
 		mobiContents.get(index).setContent(image);
 	}
 	
+	/**
+	 * Get the image bytes for the thumbnail of this {@link MobiDocument}.
+	 * 
+	 * @return The thumbnail bytes or <code>null</code> if no thumbnail was found.
+	 */
 	public byte[] getThumbnail() {
 		return getCoverByType(RECORD_TYPE.THUMBNAIL_OFFSET);
 	}
