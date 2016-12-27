@@ -27,11 +27,14 @@ public class MobiContent {
 	
 	static MobiContent readContent(byte[] mobiData, long recordDataOffset, long recordDataLength) throws IOException {
 		byte[] mobiContent = getBytes(mobiData, (int) recordDataOffset, (int) recordDataLength);
+		if(isIndexRecord(mobiContent)) {
+			return new MobiIndex(mobiContent);
+		}
 		return create(mobiContent);
 	}
 
 	byte[] writeContent(OutputStream out) throws IOException {
-		write(content, content.length, out);
+		write(content, out);
 		return content;
 	}
 
@@ -140,6 +143,15 @@ public class MobiContent {
 	 */
 	private static boolean isVideRecord(byte[] content) {
 		return startsWith(content, "VIDE".getBytes());
+	}
+	
+	protected String getCharacterEncoding(int textEncoding) {
+		if (textEncoding == 1252) {
+			return "Cp1252";
+		} else if (textEncoding == 65001) {
+			return "UTF-8";
+		}
+		return null;
 	}
 
 	public String toString() {

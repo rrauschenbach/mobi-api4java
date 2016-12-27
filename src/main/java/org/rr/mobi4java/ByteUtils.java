@@ -5,8 +5,14 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 public class ByteUtils {
+	
+	public static void write(byte[] data, OutputStream out) throws IOException {
+		write(data, data.length, out);
+	}
 	
 	public static void write(byte[] data, int length, OutputStream out) throws IOException {
 		out.write(data != null ? data : new byte[length], 0, length);
@@ -138,7 +144,17 @@ public class ByteUtils {
 
 		return s.getBytes();
 	}
-	
+
+	public static List<byte[]> chunk(byte[] source, int chunksize) {
+		byte[][] ret = new byte[(int) Math.ceil(source.length / (double) chunksize)][chunksize];
+		int start = 0;
+		for (int i = 0; i < ret.length; i++) {
+			ret[i] = Arrays.copyOfRange(source, start, start + chunksize);
+			start += chunksize;
+		}
+		return Arrays.asList(ret);
+	}
+
 	public static String dumpByteArray(byte[] buffer) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");

@@ -163,7 +163,6 @@ public class EXTHRecord {
 		public int getType() {
 			return type;
 		}
-		
 	}	
 	
 	private int recordType;

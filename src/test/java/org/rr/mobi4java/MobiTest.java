@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -48,11 +49,6 @@ public class MobiTest {
 		assertTrue(textContent.startsWith("<html>"));
 		assertTrue(textContent.endsWith("</html>"));
 
-		int i=0;
-		for (byte[] image : doc.getImages()) {
-			FileUtils.writeByteArrayToFile(new File("/tmp/" + i++ + ".jpg"), image);
-		}
-		
 		assertEquals(3, doc.getImages().size());
 		assertNotNull(doc.getCover());
 		assertNotNull(doc.getThumbnail());
@@ -125,7 +121,7 @@ public class MobiTest {
 	}
 	
 	@Test
-	public void testCreateEmptyMobiDocument() throws IOException {
+	public void testCreateNewMobiDocument() throws IOException {
 		MobiDocument doc = new MobiReader().empty();
 		assertNotNull(doc);
 		assertEquals("<html><head><guide></guide></head><body><p></p> </body></html>", doc.getTextContent());
@@ -134,6 +130,26 @@ public class MobiTest {
 		assertEquals("UTF-8", doc.getCharacterEncoding());
 		assertTrue(doc.getImages().isEmpty());
 		assertNull(doc.getThumbnail());
+		
+		byte[] newCover = getResourceData("/test-cover.jpg");
+		doc.setCover(newCover);
+		
+		Random random = new Random();
+		StringBuilder b = new StringBuilder();
+		for(int i = 0; i < 700; i++) {
+			b.append(random.nextLong()).append(" ");
+		}
+		
+		String newContent = "<html><head></head><body><p>"+b+"</p></body></html>";
+		doc.setTextContent(newContent);
+		
+		byte[] newMobiData = writeDoc(doc);
+//FileUtils.writeByteArrayToFile(new File("/tmp/dump.mobi"), newMobiData);
+		MobiDocument newDoc = readDoc(newMobiData);
+//		assertEquals(newContent, newDoc.getTextContent());
+		FileUtils.writeByteArrayToFile(new File("/tmp/before"), newContent.getBytes());
+		assertTrue(Arrays.equals(newCover, newDoc.getCover()));
+		
 	}
 	
 	private MobiDocument createReader(byte[] mobiData) throws IOException {

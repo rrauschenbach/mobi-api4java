@@ -12,13 +12,44 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class MobiHeader extends MobiContent {
+	
+	public static final int DEFAULT_RECORD_SIZE = 4096;
+	
+	public static enum COMPRESSION_CODE {
+		NONE(1), PALM_DOC(2), HUFF_CDIC(17480);
+		private final int type;
+		
+    private static Map<Integer, COMPRESSION_CODE> map = new HashMap<Integer, COMPRESSION_CODE>();
+    
+		static {
+			for (COMPRESSION_CODE typeEnum : COMPRESSION_CODE.values()) {
+				if(map.put(typeEnum.type, typeEnum) != null) {
+					throw new IllegalArgumentException("Duplicate type " + typeEnum.type);
+				}
+			}
+		}
+
+		private COMPRESSION_CODE(final int type) {
+			this.type = type;
+		}
+		
+		public static COMPRESSION_CODE valueOf(int type) {
+			return map.get(type);
+		}
+
+		public int getType() {
+			return type;
+		}
+	}
 	
 	/** Size of the extra bytes for the rest of mobi header*/
 	private static final int MOBI_HEADER_REST = 16;
@@ -217,14 +248,9 @@ public class MobiHeader extends MobiContent {
 	}
 
 	String getCharacterEncoding() {
-		if (textEncoding == 1252) {
-			return "Cp1252";
-		} else if (textEncoding == 65001) {
-			return "UTF-8";
-		}
-		return null;
+		return getCharacterEncoding(textEncoding);
 	}
-
+	
 	public String getFullName() {
 		int offset = fullNameOffset;
 		int length = fullNameLength;
@@ -291,18 +317,28 @@ public class MobiHeader extends MobiContent {
 		this.firstImageIndex = firstImageIndex;
 	}
 	
-	public int getCompressionCode() {
-		return compression;
+	public COMPRESSION_CODE getCompressionCode() {
+		return COMPRESSION_CODE.valueOf(compression);
 	}
 
-	public void setCompressionCode(int compression) {
-		this.compression = compression;
+	public void setCompressionCode(COMPRESSION_CODE compression) {
+		this.compression = compression.getType();
 	}
 
+	/**
+	 * @return First record number (starting with 0) that's not the book's text.
+	 */
 	public int getFirstNonBookIndex() {
 		return firstNonBookIndex;
 	}
 	
+	/**
+	 * @param firstNonBookIndex First record number (starting with 0) that's not the book's text. Also excluding the book's index.
+	 */
+	public void setFirstNonBookIndex(int firstNonBookIndex) {
+		this.firstNonBookIndex = firstNonBookIndex;
+	}
+
 	/**
 	 * Number of the first text record or -1 if no one is defined.
 	 * @return The first content record.
@@ -325,7 +361,49 @@ public class MobiHeader extends MobiContent {
 		return -1;		
 	}
 
-	
+	/**
+	 * @return The uncompressed length of the entire text of the book. 
+	 */
+	public int getTextLength() {
+		return textLength;
+	}
+
+	/**
+	 * @param textLength The uncompressed length of the entire text of the book.
+	 */
+	public void setTextLength(int textLength) {
+		this.textLength = textLength;
+	}
+
+	/**
+	 * @return The number of PDB records used for the text of the book. This is necessarily the same number of mobi content entries containing text.
+	 */
+	public int getRecordCount() {
+		return recordCount;
+	}
+
+	/**
+	 * @param recordCount The number of PDB records used for the text of the book. This is necessarily the same number of mobi content entries
+	 *          containing text.
+	 */
+	public void setRecordCount(int recordCount) {
+		this.recordCount = recordCount;
+	}
+
+	/**
+	 * @return Maximum size of each record containing text. This is usually 4096.
+	 */
+	public int getRecordSize() {
+		return recordSize;
+	}
+
+	/**
+	 * @param recordSize Maximum size of each record containing text. This is usually 4096.
+	 */
+	public void setRecordSize(int recordSize) {
+		this.recordSize = recordSize;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this)

@@ -107,7 +107,7 @@ class MobiUtils {
 		return firstContentIndex;
 	}
 	
-  static int getTextContentEndIndex(MobiHeader mobiHeader, PDBHeader pdbHeader) {
+  static int guessTextContentEndIndex(MobiHeader mobiHeader, PDBHeader pdbHeader) {
   	int end = MobiUtils.getLastContentIndex(mobiHeader, pdbHeader);
   	if(mobiHeader.getFirstImageIndex() - 1 > 0) {
   		end = Math.min(end, mobiHeader.getFirstImageIndex() - 1);
@@ -126,6 +126,16 @@ class MobiUtils {
 			}
 		}
 		return found;
+	}
+	
+	static List<MobiContent> findIndexRecords(List<MobiContent> contents) {
+		List<MobiContent> result = new ArrayList<>();
+		for (MobiContent content : contents) {
+			if(content.guessContentType() == MobiContent.TYPE.INDEX) {
+				result.add(content);
+			}
+		}
+		return result;
 	}
 	
 	static List<StringRecordDelegate> createStringRecords(List<EXTHRecord> records, RECORD_TYPE type) {
