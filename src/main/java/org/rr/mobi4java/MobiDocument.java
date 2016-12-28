@@ -4,8 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.collect;
 import static org.apache.commons.collections4.CollectionUtils.union;
 import static org.rr.mobi4java.ByteUtils.chunk;
-import static org.rr.mobi4java.ByteUtils.getInt;
-import static org.rr.mobi4java.MobiUtils.isImage;
 import static org.rr.mobi4java.MobiUtils.removeRandomBytes;
 import static org.rr.mobi4java.MobiUtils.removeUtfReplacementCharacter;
 import static org.rr.mobi4java.util.MobiLz77.lz77Decode;
@@ -63,7 +61,8 @@ public class MobiDocument {
 	 * @return The cover bytes or <code>null</code> if no cover was found.
 	 */
 	public byte[] getCover() {
-		return getCoverByType(RECORD_TYPE.COVER_OFFSET);
+		MobiContent content = getCoverByType(CONTENT_TYPE.COVER);
+		return content != null ? content.getContent() : null;
 	}
 	
 	/**
@@ -78,11 +77,12 @@ public class MobiDocument {
 			throw new IllegalArgumentException("No image bytes available.");
 		} 
 		
-		List<EXTHRecord> exthRecord = mobiHeader.getEXTHRecords(RECORD_TYPE.COVER_OFFSET);
-		if(!exthRecord.isEmpty()) {
-			setCoverOrThumbnail(image, exthRecord);
+		MobiContent content= getCoverByType(CONTENT_TYPE.COVER);
+		if(content != null) {
+			content.setContent(image);
 		} else {
-			createCoverOrThumbnailRecord(RECORD_TYPE.COVER_OFFSET, 0, image);
+			int indexAfterFirstImageRecord = 0;
+			createCoverOrThumbnailRecord(RECORD_TYPE.COVER_OFFSET, indexAfterFirstImageRecord, image);
 		}
 	}
 
@@ -95,28 +95,31 @@ public class MobiDocument {
 	public void setThumbnail(byte[] image) {
 		if(image == null) {
 			throw new IllegalArgumentException("No image bytes available.");
-		} 
+		}
 		
-		List<EXTHRecord> exthRecord = mobiHeader.getEXTHRecords(RECORD_TYPE.THUMBNAIL_OFFSET);
-		if(!exthRecord.isEmpty()) {
-			setCoverOrThumbnail(image, exthRecord);
+		MobiContent content= getCoverByType(CONTENT_TYPE.THUMBNAIL);
+		if(content != null) {
+			content.setContent(image);
 		} else {
-			createCoverOrThumbnailRecord(RECORD_TYPE.THUMBNAIL_OFFSET, 1, image);
+			int indexAfterFirstImageRecord = getCover() != null ? 1 : 0;
+			createCoverOrThumbnailRecord(RECORD_TYPE.THUMBNAIL_OFFSET, indexAfterFirstImageRecord, image);
 		}
 	}
-
-	private void setCoverOrThumbnail(byte[] image, List<EXTHRecord> coverRecords) {
-		int index = getInt(coverRecords.get(0).getData()) + mobiHeader.getFirstImageIndex();
-		mobiContents.get(index).setContent(image);
-	}
 	
-	private void createCoverOrThumbnailRecord(RECORD_TYPE type, int contentRecordAfterFirstImage, byte[] image) {
+	private void createCoverOrThumbnailRecord(RECORD_TYPE type, int indexAfterFirstImageRecord, byte[] image) {
 		EXTHRecord exthRecord = new EXTHRecord(type.getType());
-		exthRecord.setIntData(contentRecordAfterFirstImage);
+		exthRecord.setIntData(indexAfterFirstImageRecord);
 		mobiHeader.addEXTHRecord(exthRecord);
 		
-		MobiContent content = MobiContentFactory.createCoverRecord(image);
-		mobiContents.add(mobiHeader.getFirstImageIndex() + contentRecordAfterFirstImage, content);
+		MobiContent content;
+		if(type == RECORD_TYPE.COVER_OFFSET) {
+			content = MobiContentRecordFactory.createCoverRecord(image);
+		} else if(type == RECORD_TYPE.THUMBNAIL_OFFSET) {
+			content = MobiContentRecordFactory.createThumbnailRecord(image);
+		} else {
+			throw new IllegalArgumentException("Failed to create record type " + type);
+		}
+		mobiContents.add(mobiHeader.getFirstImageIndex() + indexAfterFirstImageRecord, content);
 	}
 	
 	/**
@@ -125,7 +128,8 @@ public class MobiDocument {
 	 * @return The thumbnail bytes or <code>null</code> if no thumbnail was found.
 	 */
 	public byte[] getThumbnail() {
-		return getCoverByType(RECORD_TYPE.THUMBNAIL_OFFSET);
+		MobiContent content = getCoverByType(CONTENT_TYPE.THUMBNAIL);
+		return content != null ? content.getContent() : null; 
 	}
 	
 	public List<byte[]> getImages() {
@@ -137,23 +141,23 @@ public class MobiDocument {
 		return images;
 	}
 	
-	public List<MobiContent> getImageContents() {
+	List<MobiContent> getImageContents() {
 		int firstImageIndex = mobiHeader.getFirstImageIndex();
 		List<MobiContent> imageContents = new ArrayList<>(mobiContents.size() - firstImageIndex);
 		for(int i = firstImageIndex; i < mobiContents.size(); i++) {
 			MobiContent content = mobiContents.get(i);
-			if(isImage(content.getContent())) {
+			if(content.getType() == CONTENT_TYPE.IMAGE || content.getType() == CONTENT_TYPE.COVER || content.getType() == CONTENT_TYPE.THUMBNAIL) {
 				imageContents.add(content);
 			}
 		}
 		return imageContents;
 	}
 	
-	private byte[] getCoverByType(RECORD_TYPE type) {
-		List<EXTHRecord> coverRecords = mobiHeader.getEXTHRecords(type);
-		if(!coverRecords.isEmpty()) {
-			int index = getInt(coverRecords.get(0).getData()) + mobiHeader.getFirstImageIndex();
-			return mobiContents.get(index).getContent();
+	private MobiContent getCoverByType(CONTENT_TYPE type) {
+		for (MobiContent mobiContent : mobiContents) {
+			if(mobiContent.getType() == type) {
+				return mobiContent;
+			}
 		}
 		return null;
 	}
@@ -219,7 +223,7 @@ public class MobiDocument {
   	
   	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
-  	Collection<MobiContent> contentRecords = union(toMobiContent(chunkedMobiText), singletonList(MobiContentFactory.createEndOfTextRecord()));
+  	Collection<MobiContent> contentRecords = union(toMobiContent(chunkedMobiText), singletonList(MobiContentRecordFactory.createEndOfTextRecord()));
   	mobiContents.addAll(firstContentIndex, contentRecords);
   	
   	mobiHeader.setTextLength(mobiText.length());
@@ -237,7 +241,7 @@ public class MobiDocument {
 			
 			@Override
 			public MobiContent transform(byte[] content) {
-				return MobiContentFactory.createContentRecord(content);
+				return MobiContentRecordFactory.createContentRecord(content);
 			}
 		});
 	}

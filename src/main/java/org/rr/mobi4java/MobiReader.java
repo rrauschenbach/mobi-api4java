@@ -1,5 +1,7 @@
 package org.rr.mobi4java;
 
+import static org.rr.mobi4java.MobiContentRecordFactory.*;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -76,8 +78,8 @@ public class MobiReader {
 	private MobiContent createMobiContent(PDBHeader pdbHeader, MobiContentHeader mobiHeader, byte[] mobiData, int index) throws IOException {
 		long recordDataOffset = getRecordDataOffset(pdbHeader, index);
 		long recordDataLength = getRecordDataLength(pdbHeader, index);
-		CONTENT_TYPE type = MobiContentFactory.evaluateType(pdbHeader, mobiHeader, index, mobiData, recordDataOffset, recordDataLength);
-		return MobiContentFactory.readContent(mobiData, type, recordDataOffset, recordDataLength);
+		CONTENT_TYPE type = evaluateType(pdbHeader, mobiHeader, index, mobiData, recordDataOffset, recordDataLength);
+		return readContent(mobiData, type, recordDataOffset, recordDataLength);
 	}
 
 	private long getRecordDataOffset(PDBHeader pdbHeader, int idx) {

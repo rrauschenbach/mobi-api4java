@@ -144,12 +144,8 @@ public class MobiTest {
 		doc.setTextContent(newContent);
 		
 		byte[] newMobiData = writeDoc(doc);
-//FileUtils.writeByteArrayToFile(new File("/tmp/dump.mobi"), newMobiData);
 		MobiDocument newDoc = readDoc(newMobiData);
-//		assertEquals(newContent, newDoc.getTextContent());
-		FileUtils.writeByteArrayToFile(new File("/tmp/before"), newContent.getBytes());
 		assertTrue(Arrays.equals(newCover, newDoc.getCover()));
-		
 	}
 	
 	private MobiDocument createReader(byte[] mobiData) throws IOException {
