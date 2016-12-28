@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.rr.mobi4java.EXTHRecord.RECORD_TYPE;
+import org.rr.mobi4java.MobiContent.CONTENT_TYPE;
 import org.rr.mobi4java.exth.DateRecordDelegate;
 import org.rr.mobi4java.exth.StringRecordDelegate;
 
@@ -128,10 +129,10 @@ class MobiUtils {
 		return found;
 	}
 	
-	static List<MobiContent> findIndexRecords(List<MobiContent> contents) {
+	static List<MobiContent> findContentsByType(List<MobiContent> contents, CONTENT_TYPE type) {
 		List<MobiContent> result = new ArrayList<>();
 		for (MobiContent content : contents) {
-			if(content.guessContentType() == MobiContent.TYPE.INDEX) {
+			if(content.getType() == type) {
 				result.add(content);
 			}
 		}

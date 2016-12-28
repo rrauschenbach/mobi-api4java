@@ -101,7 +101,7 @@ public class MobiHeader extends MobiContent {
 	// end of useful data
 	
 	private MobiHeader(byte[] content, long recordDataOffset, long recordDataLength) {
-		super(getBytes(content, (int) recordDataOffset, (int) recordDataLength));
+		super(getBytes(content, (int) recordDataOffset, (int) recordDataLength), CONTENT_TYPE.HEADER);
 		this.recordDataOffset = (int) recordDataOffset;
 		this.recordDataLength = (int) recordDataLength;
 	}

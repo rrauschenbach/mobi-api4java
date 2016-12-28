@@ -1,5 +1,8 @@
 package org.rr.mobi4java;
 
+import static java.util.Collections.singletonList;
+import static org.apache.commons.collections4.CollectionUtils.collect;
+import static org.apache.commons.collections4.CollectionUtils.union;
 import static org.rr.mobi4java.ByteUtils.chunk;
 import static org.rr.mobi4java.ByteUtils.getInt;
 import static org.rr.mobi4java.MobiUtils.isImage;
@@ -15,10 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.rr.mobi4java.EXTHRecord.RECORD_TYPE;
-import org.rr.mobi4java.MobiContent.TYPE;
+import org.rr.mobi4java.MobiContent.CONTENT_TYPE;
 import org.rr.mobi4java.MobiHeader.COMPRESSION_CODE;
 
 
@@ -80,7 +82,7 @@ public class MobiDocument {
 		if(!exthRecord.isEmpty()) {
 			setCoverOrThumbnail(image, exthRecord);
 		} else {
-			createCoverOrThumbnailRecord(RECORD_TYPE.COVER_OFFSET, 1, image);
+			createCoverOrThumbnailRecord(RECORD_TYPE.COVER_OFFSET, 0, image);
 		}
 	}
 
@@ -99,7 +101,7 @@ public class MobiDocument {
 		if(!exthRecord.isEmpty()) {
 			setCoverOrThumbnail(image, exthRecord);
 		} else {
-			createCoverOrThumbnailRecord(RECORD_TYPE.THUMBNAIL_OFFSET, 2, image);
+			createCoverOrThumbnailRecord(RECORD_TYPE.THUMBNAIL_OFFSET, 1, image);
 		}
 	}
 
@@ -113,7 +115,7 @@ public class MobiDocument {
 		exthRecord.setIntData(contentRecordAfterFirstImage);
 		mobiHeader.addEXTHRecord(exthRecord);
 		
-		MobiContent content = new MobiContent(image);
+		MobiContent content = MobiContentFactory.createCoverRecord(image);
 		mobiContents.add(mobiHeader.getFirstImageIndex() + contentRecordAfterFirstImage, content);
 	}
 	
@@ -130,7 +132,7 @@ public class MobiDocument {
 		List<MobiContent> imageContents = getImageContents();
 		List<byte[]> images = new ArrayList<>(imageContents.size());
 		for (MobiContent imageContent : imageContents) {
-			images.add(imageContent.content);
+			images.add(imageContent.getContent());
 		}
 		return images;
 	}
@@ -140,7 +142,7 @@ public class MobiDocument {
 		List<MobiContent> imageContents = new ArrayList<>(mobiContents.size() - firstImageIndex);
 		for(int i = firstImageIndex; i < mobiContents.size(); i++) {
 			MobiContent content = mobiContents.get(i);
-			if(isImage(content.content)) {
+			if(isImage(content.getContent())) {
 				imageContents.add(content);
 			}
 		}
@@ -151,7 +153,7 @@ public class MobiDocument {
 		List<EXTHRecord> coverRecords = mobiHeader.getEXTHRecords(type);
 		if(!coverRecords.isEmpty()) {
 			int index = getInt(coverRecords.get(0).getData()) + mobiHeader.getFirstImageIndex();
-			return mobiContents.get(index).content;
+			return mobiContents.get(index).getContent();
 		}
 		return null;
 	}
@@ -176,20 +178,13 @@ public class MobiDocument {
 	 */
   public String getTextContent() throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-  	int firstContentIndex = MobiUtils.getTextContentStartIndex(mobiHeader);
-  	int lastContentIndex = firstContentIndex + mobiHeader.getRecordCount();
-  	
-		for (int i = firstContentIndex; i <= lastContentIndex; i++) {
-			MobiContent mobiContent = mobiContents.get(i);
-			if(mobiContent.guessContentType() == TYPE.END_OF_TEXT) { // optional record
-				break;
-			}
-			byte[] decoded = null;
-			
+  	List<MobiContent> contents = MobiUtils.findContentsByType(mobiContents, CONTENT_TYPE.CONTENT);
+  	for (MobiContent mobiContent : contents) {
+  		byte[] decoded = null;
 			if (mobiHeader.getCompressionCode() == COMPRESSION_CODE.PALM_DOC) {
-				decoded = lz77Decode(mobiContent.content);
+				decoded = lz77Decode(mobiContent.getContent());
 			} else if (mobiHeader.getCompressionCode() == COMPRESSION_CODE.NONE) {
-				decoded = mobiContent.content;
+				decoded = mobiContent.getContent();
 			} else if (mobiHeader.getCompressionCode() == COMPRESSION_CODE.HUFF_CDIC) {
 				// TODO 
 				throw new UnsupportedEncodingException("HUFF/CDIC encoding is not supported."); 
@@ -199,7 +194,7 @@ public class MobiDocument {
 
 			decoded = removeRandomBytes(decoded);
 			
-			if (mobiContent.guessContentType() != TYPE.INDEX) {
+			if (mobiContent.getType() != CONTENT_TYPE.INDEX) {
 				outputStream.write(decoded);
 			}
 		}
@@ -216,31 +211,33 @@ public class MobiDocument {
   	int firstContentIndex = MobiUtils.getTextContentStartIndex(mobiHeader);
   	int lastContentIndex = firstContentIndex + mobiHeader.getRecordCount();
 
-  	// remove text content including a possible book index.
-  	removeContent(firstContentIndex, Math.max(lastContentIndex, mobiHeader.getFirstImageIndex() - 1));
+  	// remove text content including a possible book index and a EOT record.
+  	removeContent(firstContentIndex, Math.max(lastContentIndex, mobiHeader.getFirstImageIndex()));
   	
   	byte[] encodedMobiText = lz77Encode(mobiText.getBytes(getCharacterEncoding()));
   	mobiHeader.setCompressionCode(COMPRESSION_CODE.PALM_DOC);
   	
   	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiHeader.DEFAULT_RECORD_SIZE);
   	
-  	mobiContents.addAll(toMobiContent(chunkedMobiText));
+  	Collection<MobiContent> contentRecords = union(toMobiContent(chunkedMobiText), singletonList(MobiContentFactory.createEndOfTextRecord()));
+  	mobiContents.addAll(firstContentIndex, contentRecords);
   	
   	mobiHeader.setTextLength(mobiText.length());
   	mobiHeader.setRecordCount(chunkedMobiText.size());
   	mobiHeader.setRecordSize(MobiHeader.DEFAULT_RECORD_SIZE);
   	
-  	// set non book index and first image index to the same value because there is no book index at this point.
-  	mobiHeader.setFirstNonBookIndex(firstContentIndex + chunkedMobiText.size() + 1);
-  	mobiHeader.setFirstImageIndex(firstContentIndex + chunkedMobiText.size() + 1);
+  	// set non book index and first image index to the same value because there is no book index at this point,
+  	// which is usually located between these two indices.
+  	mobiHeader.setFirstNonBookIndex(firstContentIndex + contentRecords.size());
+  	mobiHeader.setFirstImageIndex(firstContentIndex + contentRecords.size());
   }
 
 	private Collection<MobiContent> toMobiContent(Collection<byte[]> chunkedMobiText) {
-		return CollectionUtils.collect(chunkedMobiText, new Transformer<byte[], MobiContent>() {
+		return collect(chunkedMobiText, new Transformer<byte[], MobiContent>() {
 			
 			@Override
-			public MobiContent transform(byte[] input) {
-				return new MobiContent(input);
+			public MobiContent transform(byte[] content) {
+				return MobiContentFactory.createContentRecord(content);
 			}
 		});
 	}

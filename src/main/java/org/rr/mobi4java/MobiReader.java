@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.rr.mobi4java.MobiContent.CONTENT_TYPE;
 
 public class MobiReader {
 
@@ -73,8 +74,10 @@ public class MobiReader {
 	}
 
 	private MobiContent createMobiContent(PDBHeader pdbHeader, MobiHeader mobiHeader, byte[] mobiData, int index) throws IOException {
-		return MobiContent.readContent(mobiData, getRecordDataOffset(pdbHeader, index),
-					getRecordDataLength(pdbHeader, index));
+		long recordDataOffset = getRecordDataOffset(pdbHeader, index);
+		long recordDataLength = getRecordDataLength(pdbHeader, index);
+		CONTENT_TYPE type = MobiContentFactory.evaluateType(pdbHeader, mobiHeader, index, mobiData, recordDataOffset, recordDataLength);
+		return MobiContentFactory.readContent(mobiData, type, recordDataOffset, recordDataLength);
 	}
 
 	private long getRecordDataOffset(PDBHeader pdbHeader, int idx) {

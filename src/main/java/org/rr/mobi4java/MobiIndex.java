@@ -41,7 +41,7 @@ public class MobiIndex extends MobiContent {
 	private byte[] restOfMobiIndex;
 
 	MobiIndex(byte[] content) {
-		super(content);
+		super(content, CONTENT_TYPE.INDEX);
 		readMobiIndex();
 	}
 	
