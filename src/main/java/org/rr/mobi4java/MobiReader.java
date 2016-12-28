@@ -37,7 +37,7 @@ public class MobiReader {
 	public MobiDocument read(InputStream in) throws IOException {
 		byte[] mobiData = IOUtils.toByteArray(in);
 		PDBHeader pdbHeader = readPDBHeader(mobiData);
-		MobiHeader mobiHeader = readMobiHeader(pdbHeader, mobiData);
+		MobiContentHeader mobiHeader = readMobiHeader(pdbHeader, mobiData);
 		List<MobiContent> mobiContent = readMobiContent(pdbHeader, mobiHeader, mobiData);
 		return new MobiDocument(pdbHeader, mobiHeader, mobiContent);
 	}
@@ -59,11 +59,11 @@ public class MobiReader {
 		return PDBHeader.readHeader(mobiData);
 	}
 
-	private MobiHeader readMobiHeader(PDBHeader pdbHeader, byte[] mobiData) throws IOException {
-		return MobiHeader.readMobiHeader(mobiData, getRecordDataOffset(pdbHeader, 0), getRecordDataLength(pdbHeader, 0));
+	private MobiContentHeader readMobiHeader(PDBHeader pdbHeader, byte[] mobiData) throws IOException {
+		return MobiContentHeader.readMobiHeader(mobiData, getRecordDataOffset(pdbHeader, 0), getRecordDataLength(pdbHeader, 0));
 	}
 
-	private List<MobiContent> readMobiContent(PDBHeader pdbHeader, MobiHeader mobiHeader, byte[] mobiData) throws IOException {
+	private List<MobiContent> readMobiContent(PDBHeader pdbHeader, MobiContentHeader mobiHeader, byte[] mobiData) throws IOException {
 		List<MobiContent> mobiContents = new ArrayList<>();
 		mobiContents.add(mobiHeader);
 		int recordCount = pdbHeader.getRecordCount();
@@ -73,7 +73,7 @@ public class MobiReader {
 		return mobiContents;
 	}
 
-	private MobiContent createMobiContent(PDBHeader pdbHeader, MobiHeader mobiHeader, byte[] mobiData, int index) throws IOException {
+	private MobiContent createMobiContent(PDBHeader pdbHeader, MobiContentHeader mobiHeader, byte[] mobiData, int index) throws IOException {
 		long recordDataOffset = getRecordDataOffset(pdbHeader, index);
 		long recordDataLength = getRecordDataLength(pdbHeader, index);
 		CONTENT_TYPE type = MobiContentFactory.evaluateType(pdbHeader, mobiHeader, index, mobiData, recordDataOffset, recordDataLength);

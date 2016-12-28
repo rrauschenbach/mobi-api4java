@@ -61,7 +61,7 @@ public class PDBHeader {
 		return header;
 	}
 	
-	void writeHeader(MobiHeader mobiHeader, List<MobiContent> mobiContents, OutputStream out) throws IOException {
+	void writeHeader(MobiContentHeader mobiHeader, List<MobiContent> mobiContents, OutputStream out) throws IOException {
 		writeString(name, 32, out);
 		writeInt(attributes, 2, out);
 		writeInt(version, 2, out);
@@ -84,7 +84,7 @@ public class PDBHeader {
 		write(new byte[2], 2, out);
 	}
 	
-	private List<PDBRecord> createPDBRecords(MobiHeader mobiHeader, List<MobiContent> mobiContents) {
+	private List<PDBRecord> createPDBRecords(MobiContentHeader mobiHeader, List<MobiContent> mobiContents) {
 		int recordCount = mobiContents.size();
 		int offset = PDB_HEADER_SIZE + (recordCount * PDB_RECORD_SIZE);
 		List<PDBRecord> records = new ArrayList<>(recordCount);

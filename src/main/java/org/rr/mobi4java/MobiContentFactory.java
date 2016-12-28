@@ -31,7 +31,7 @@ public class MobiContentFactory {
 		return create(mobiContent, type);
 	}
 	
-	public static CONTENT_TYPE evaluateType(PDBHeader pdbHeader, MobiHeader mobiHeader, int index, byte[] mobiData, long recordDataOffset, long recordDataLength) {
+	public static CONTENT_TYPE evaluateType(PDBHeader pdbHeader, MobiContentHeader mobiHeader, int index, byte[] mobiData, long recordDataOffset, long recordDataLength) {
 		byte[] content = getBytes(mobiData, (int) recordDataOffset, (int) recordDataLength);
 		if(Range.<Integer>between(1, mobiHeader.getRecordCount()).contains(index)) {
 			return CONTENT_TYPE.CONTENT;
@@ -64,7 +64,7 @@ public class MobiContentFactory {
 	/**
 	 * In some cases, there are a 2-zero-byte record after the text records in a file.
 	 */
-	private static boolean isEndOfTextRecord(MobiHeader mobiHeader, int index, byte[] content) {
+	private static boolean isEndOfTextRecord(MobiContentHeader mobiHeader, int index, byte[] content) {
 		return mobiHeader.getRecordCount() + 1 == index &&
 				content.length == 2 && 
 				startsWith(content, new byte[] {0x00, 0x00});

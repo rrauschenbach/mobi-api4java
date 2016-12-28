@@ -21,20 +21,20 @@ import java.util.List;
 import org.apache.commons.collections4.Transformer;
 import org.rr.mobi4java.EXTHRecord.RECORD_TYPE;
 import org.rr.mobi4java.MobiContent.CONTENT_TYPE;
-import org.rr.mobi4java.MobiHeader.COMPRESSION_CODE;
+import org.rr.mobi4java.MobiContentHeader.COMPRESSION_CODE;
 
 
 public class MobiDocument {
 
 	private PDBHeader pdbHeader;
 	
-	private MobiHeader mobiHeader;
+	private MobiContentHeader mobiHeader;
 	
 	private List<MobiContent> mobiContents;
 	
 	private MobiMetaData mobiMetaData;
 	
-	MobiDocument(PDBHeader pdbHeader, MobiHeader mobiHeader, List<MobiContent> mobiContent) {
+	MobiDocument(PDBHeader pdbHeader, MobiContentHeader mobiHeader, List<MobiContent> mobiContent) {
 		this.pdbHeader = pdbHeader;
 		this.mobiHeader = mobiHeader;
 		this.mobiContents = mobiContent;
@@ -45,7 +45,7 @@ public class MobiDocument {
 		return pdbHeader;
 	}
 
-	MobiHeader getMobiHeader() {
+	MobiContentHeader getMobiHeader() {
 		return mobiHeader;
 	}
 	
@@ -217,14 +217,14 @@ public class MobiDocument {
   	byte[] encodedMobiText = lz77Encode(mobiText.getBytes(getCharacterEncoding()));
   	mobiHeader.setCompressionCode(COMPRESSION_CODE.PALM_DOC);
   	
-  	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiHeader.DEFAULT_RECORD_SIZE);
+  	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
   	Collection<MobiContent> contentRecords = union(toMobiContent(chunkedMobiText), singletonList(MobiContentFactory.createEndOfTextRecord()));
   	mobiContents.addAll(firstContentIndex, contentRecords);
   	
   	mobiHeader.setTextLength(mobiText.length());
   	mobiHeader.setRecordCount(chunkedMobiText.size());
-  	mobiHeader.setRecordSize(MobiHeader.DEFAULT_RECORD_SIZE);
+  	mobiHeader.setRecordSize(MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
   	// set non book index and first image index to the same value because there is no book index at this point,
   	// which is usually located between these two indices.

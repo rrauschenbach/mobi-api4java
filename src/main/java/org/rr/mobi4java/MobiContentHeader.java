@@ -20,7 +20,7 @@ import java.util.Map;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class MobiHeader extends MobiContent {
+public class MobiContentHeader extends MobiContent {
 	
 	public static final int DEFAULT_RECORD_SIZE = 4096;
 	
@@ -100,17 +100,17 @@ public class MobiHeader extends MobiContent {
 	private byte[] remainder;
 	// end of useful data
 	
-	private MobiHeader(byte[] content, long recordDataOffset, long recordDataLength) {
+	private MobiContentHeader(byte[] content, long recordDataOffset, long recordDataLength) {
 		super(getBytes(content, (int) recordDataOffset, (int) recordDataLength), CONTENT_TYPE.HEADER);
 		this.recordDataOffset = (int) recordDataOffset;
 		this.recordDataLength = (int) recordDataLength;
 	}
 	
-	static MobiHeader readMobiHeader(byte[] content, long recordDataOffset, long recordDataLength) throws IOException {
-		return new MobiHeader(content, recordDataOffset, recordDataLength).readMobiHeader();
+	static MobiContentHeader readMobiHeader(byte[] content, long recordDataOffset, long recordDataLength) throws IOException {
+		return new MobiContentHeader(content, recordDataOffset, recordDataLength).readMobiHeader();
 	}
 	
-	private MobiHeader readMobiHeader() throws IOException {
+	private MobiContentHeader readMobiHeader() throws IOException {
 		compression = getInt(content, 0, 2); // first 16 bytes of the PalmDOC Header followed by the MOBI header
 		unused0 = getInt(content, 2, 2);
 		textLength = getInt(content, 4, 4);

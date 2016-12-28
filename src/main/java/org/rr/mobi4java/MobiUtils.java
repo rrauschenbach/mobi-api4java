@@ -92,7 +92,7 @@ class MobiUtils {
 		return false;
 	}
 
-	private static int getLastContentIndex(MobiHeader mobiHeader, PDBHeader pdbHeader) {
+	private static int getLastContentIndex(MobiContentHeader mobiHeader, PDBHeader pdbHeader) {
 		int lastContentIndex = mobiHeader.getLastContentRecordNumber();
   	if(lastContentIndex <= 0) {
   		lastContentIndex = pdbHeader.getRecordCount();
@@ -100,7 +100,7 @@ class MobiUtils {
 		return lastContentIndex;
 	}
 
-	static int getTextContentStartIndex(MobiHeader mobiHeader) {
+	static int getTextContentStartIndex(MobiContentHeader mobiHeader) {
 		int firstContentIndex = mobiHeader.getFirstContentRecordNumber();
   	if(firstContentIndex <= 0) {
   		firstContentIndex = 1; // text starts usually with at index 1
@@ -108,7 +108,7 @@ class MobiUtils {
 		return firstContentIndex;
 	}
 	
-  static int guessTextContentEndIndex(MobiHeader mobiHeader, PDBHeader pdbHeader) {
+  static int guessTextContentEndIndex(MobiContentHeader mobiHeader, PDBHeader pdbHeader) {
   	int end = MobiUtils.getLastContentIndex(mobiHeader, pdbHeader);
   	if(mobiHeader.getFirstImageIndex() - 1 > 0) {
   		end = Math.min(end, mobiHeader.getFirstImageIndex() - 1);

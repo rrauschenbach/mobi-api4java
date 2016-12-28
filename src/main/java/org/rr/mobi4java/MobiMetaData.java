@@ -14,9 +14,9 @@ import org.rr.mobi4java.exth.StringRecordDelegate;
 
 public class MobiMetaData {
 
-	private MobiHeader mobiHeader;
+	private MobiContentHeader mobiHeader;
 	
-	MobiMetaData(MobiHeader mobiHeader) {
+	MobiMetaData(MobiContentHeader mobiHeader) {
 		this.mobiHeader = mobiHeader;
 	}
 	
