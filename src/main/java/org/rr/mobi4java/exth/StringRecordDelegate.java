@@ -1,6 +1,6 @@
 package org.rr.mobi4java.exth;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.rr.mobi4java.ByteUtils.getBytes;
 import static org.rr.mobi4java.ByteUtils.getString;
 

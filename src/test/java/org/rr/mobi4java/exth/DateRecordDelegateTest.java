@@ -1,13 +1,13 @@
 package org.rr.mobi4java.exth;
 
-import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Test;
 import org.rr.mobi4java.EXTHRecord.RECORD_TYPE;
 import org.rr.mobi4java.EXTHRecordFactory;

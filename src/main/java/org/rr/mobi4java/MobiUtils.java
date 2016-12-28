@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.rr.mobi4java.EXTHRecord.RECORD_TYPE;
 import org.rr.mobi4java.exth.DateRecordDelegate;
 import org.rr.mobi4java.exth.StringRecordDelegate;

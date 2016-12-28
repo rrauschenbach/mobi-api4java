@@ -1,6 +1,6 @@
 package org.rr.mobi4java;
 
-import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

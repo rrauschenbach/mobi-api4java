@@ -67,11 +67,14 @@ public class MobiReader {
 		mobiContents.add(mobiHeader);
 		int recordCount = pdbHeader.getRecordCount();
 		for (int i = 1; i < recordCount; i++) {
-			MobiContent mobiContent = MobiContent.readContent(mobiData, getRecordDataOffset(pdbHeader, i),
-						getRecordDataLength(pdbHeader, i));
-			mobiContents.add(mobiContent);
+			mobiContents.add(createMobiContent(pdbHeader, mobiHeader, mobiData, i));
 		}
 		return mobiContents;
+	}
+
+	private MobiContent createMobiContent(PDBHeader pdbHeader, MobiHeader mobiHeader, byte[] mobiData, int index) throws IOException {
+		return MobiContent.readContent(mobiData, getRecordDataOffset(pdbHeader, index),
+					getRecordDataLength(pdbHeader, index));
 	}
 
 	private long getRecordDataOffset(PDBHeader pdbHeader, int idx) {

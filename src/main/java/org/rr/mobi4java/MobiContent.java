@@ -7,7 +7,7 @@ import static org.rr.mobi4java.ByteUtils.write;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class MobiContent {
 	
@@ -15,7 +15,9 @@ public class MobiContent {
 		CONTENT, INDEX, TAGX, FLIS, FCIS, FDST, DATP, SRCS, CMET, AUDI, VIDE, END_OF_TEXT, UNKNOWN
 	};
 	
-	byte[] content;
+	protected byte[] content;
+	
+	private TYPE type;
 	
 	MobiContent(byte[] content) {
 		this.content = content;
@@ -152,6 +154,10 @@ public class MobiContent {
 			return "UTF-8";
 		}
 		return null;
+	}
+
+	public TYPE getType() {
+		return type;
 	}
 
 	public String toString() {

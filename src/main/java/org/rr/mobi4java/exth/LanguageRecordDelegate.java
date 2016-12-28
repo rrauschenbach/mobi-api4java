@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.rr.mobi4java.EXTHRecord;
 
 public class LanguageRecordDelegate implements RecordDelegate {

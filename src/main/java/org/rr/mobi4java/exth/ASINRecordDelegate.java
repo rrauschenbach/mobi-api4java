@@ -1,6 +1,6 @@
 package org.rr.mobi4java.exth;
 
-import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;

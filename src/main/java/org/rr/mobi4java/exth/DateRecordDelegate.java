@@ -1,6 +1,6 @@
 package org.rr.mobi4java.exth;
 
-import static org.apache.commons.lang.CharEncoding.UTF_8;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -8,8 +8,8 @@ import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.rr.mobi4java.EXTHRecord;
 
 public class DateRecordDelegate extends StringRecordDelegate implements RecordDelegate {

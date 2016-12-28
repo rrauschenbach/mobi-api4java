@@ -1,6 +1,6 @@
 package org.rr.mobi4java;
 
-import static org.apache.commons.lang.BooleanUtils.negate;
+import static org.apache.commons.lang3.BooleanUtils.negate;
 import static org.rr.mobi4java.ByteUtils.getInt;
 import static org.rr.mobi4java.ByteUtils.getBytes;
 import static org.rr.mobi4java.ByteUtils.getString;
@@ -12,8 +12,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class EXTHHeader {
 	
