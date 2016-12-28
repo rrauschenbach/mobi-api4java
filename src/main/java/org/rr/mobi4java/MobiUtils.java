@@ -1,7 +1,5 @@
 package org.rr.mobi4java;
 
-import static org.rr.mobi4java.ByteUtils.getInt;
-
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
