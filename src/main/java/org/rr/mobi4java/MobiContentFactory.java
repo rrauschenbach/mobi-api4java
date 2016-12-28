@@ -8,17 +8,17 @@ import java.io.IOException;
 import org.apache.commons.lang3.Range;
 import org.rr.mobi4java.MobiContent.CONTENT_TYPE;
 
-public class MobiContentFactory {
+class MobiContentFactory {
 	
-	public static MobiContent createContentRecord(byte[] mobiContent) {
+	static MobiContent createContentRecord(byte[] mobiContent) {
 		return new MobiContent(mobiContent, CONTENT_TYPE.CONTENT);
 	}
 
-	public static MobiContent createCoverRecord(byte[] mobiContent) {
+	static MobiContent createCoverRecord(byte[] mobiContent) {
 		return new MobiContent(mobiContent, CONTENT_TYPE.UNKNOWN);
 	}
 	
-	public static MobiContent createEndOfTextRecord() {
+	static MobiContent createEndOfTextRecord() {
 		return new MobiContent(new byte[] {0,0}, CONTENT_TYPE.END_OF_TEXT);
 	}
 	
@@ -26,12 +26,12 @@ public class MobiContentFactory {
 		return new MobiContent(mobiContent, type);
 	}
 	
-	public static MobiContent readContent(byte[] mobiData, CONTENT_TYPE type, long recordDataOffset, long recordDataLength) throws IOException {
+	static MobiContent readContent(byte[] mobiData, CONTENT_TYPE type, long recordDataOffset, long recordDataLength) throws IOException {
 		byte[] mobiContent = getBytes(mobiData, (int) recordDataOffset, (int) recordDataLength);
 		return create(mobiContent, type);
 	}
 	
-	public static CONTENT_TYPE evaluateType(PDBHeader pdbHeader, MobiContentHeader mobiHeader, int index, byte[] mobiData, long recordDataOffset, long recordDataLength) {
+	static CONTENT_TYPE evaluateType(PDBHeader pdbHeader, MobiContentHeader mobiHeader, int index, byte[] mobiData, long recordDataOffset, long recordDataLength) {
 		byte[] content = getBytes(mobiData, (int) recordDataOffset, (int) recordDataLength);
 		if(Range.<Integer>between(1, mobiHeader.getRecordCount()).contains(index)) {
 			return CONTENT_TYPE.CONTENT;
