@@ -8,13 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.rr.mobi4java.exth.DateRecordDelegate;
@@ -162,7 +160,7 @@ public class MobiTest {
 
 	private byte[] writeDoc(MobiDocument doc) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new MobiWriter().write(doc, out);
+		new MobiWriter(doc).write(out);
 		return out.toByteArray();
 	}
 	

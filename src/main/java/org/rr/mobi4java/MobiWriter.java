@@ -9,6 +9,12 @@ import java.io.OutputStream;
 public class MobiWriter {
 	
 	private static final byte[] MOBI_EOF = new byte[] {(byte) 0xeE9, (byte) 0x8E, 0x0D, 0x0A};
+	
+	private MobiDocument doc;
+	
+	public MobiWriter(MobiDocument doc) {
+		this.doc = doc;
+	}
 
 	/**
 	 * Write the mobipocket document to the given {@link File}. 
@@ -17,9 +23,9 @@ public class MobiWriter {
 	 * @param file The {@link File} where the mobipocket data will be written to.
 	 * @throws IOException
 	 */
-	public void write(MobiDocument doc, File file) throws IOException {
+	public void write(File file) throws IOException {
 		try(BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-			write(doc, out);
+			write(out);
 		}
 	}
 	
@@ -31,7 +37,7 @@ public class MobiWriter {
 	 * @param out The {@link OutputStream} where the mobipocket data will be written to.
 	 * @throws IOException
 	 */
-	public void write(MobiDocument doc, OutputStream out) throws IOException {
+	public void write(OutputStream out) throws IOException {
 		doc.getPdbHeader().writeHeader(doc.getMobiHeader(), doc.getMobiContents(), out);
 		byte[] written = null; 
 		for (MobiContent mobiContent : doc.getMobiContents()) {
