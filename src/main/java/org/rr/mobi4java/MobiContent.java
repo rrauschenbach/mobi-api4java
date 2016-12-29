@@ -49,6 +49,8 @@ public class MobiContent {
 			return "Cp1252";
 		} else if (textEncoding == 65001) {
 			return "UTF-8";
+		} else if (textEncoding == 65002) {
+			return "UTF-16";
 		}
 		return null;
 	}
