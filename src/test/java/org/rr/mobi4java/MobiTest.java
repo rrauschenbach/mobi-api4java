@@ -122,8 +122,8 @@ public class MobiTest {
 	public void testCreateNewMobiDocument() throws IOException {
 		MobiDocument doc = new MobiReader().empty();
 		assertNotNull(doc);
-		assertEquals("<html><head><guide></guide></head><body><p></p> </body></html>", doc.getTextContent());
-		assertEquals("template", doc.getFullName());
+		assertEquals("<html><head><guide></guide></head><body><p></p></body></html>", doc.getTextContent());
+		assertEquals("", doc.getFullName());
 		assertTrue(doc.getImageContents().isEmpty());
 		assertEquals("UTF-8", doc.getCharacterEncoding());
 		assertTrue(doc.getImages().isEmpty());
@@ -138,7 +138,7 @@ public class MobiTest {
 			b.append(random.nextLong()).append(" ");
 		}
 		
-		String newContent = "<html><head></head><body><p>"+b+"</p></body></html>";
+		String newContent = "<html><head></head><body><p>" + b + "</p></body></html>";
 		doc.setTextContent(newContent);
 		
 		byte[] newMobiData = writeDoc(doc);

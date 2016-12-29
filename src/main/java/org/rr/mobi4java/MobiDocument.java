@@ -1,8 +1,6 @@
 package org.rr.mobi4java;
 
-import static java.util.Collections.singletonList;
 import static org.apache.commons.collections4.CollectionUtils.collect;
-import static org.apache.commons.collections4.CollectionUtils.union;
 import static org.rr.mobi4java.ByteUtils.chunk;
 import static org.rr.mobi4java.MobiUtils.removeRandomBytes;
 import static org.rr.mobi4java.MobiUtils.removeUtfReplacementCharacter;
@@ -223,8 +221,8 @@ public class MobiDocument {
   	
   	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
-  	Collection<MobiContent> contentRecords = union(toMobiContent(chunkedMobiText), singletonList(MobiContentRecordFactory.createEndOfTextRecord()));
-  	mobiContents.addAll(firstContentIndex, contentRecords);
+  	mobiContents.addAll(firstContentIndex, toMobiContent(chunkedMobiText));
+  	mobiContents.add(firstContentIndex + chunkedMobiText.size(), MobiContentRecordFactory.createEndOfTextRecord());
   	
   	mobiHeader.setTextLength(mobiText.length());
   	mobiHeader.setRecordCount(chunkedMobiText.size());
@@ -232,8 +230,9 @@ public class MobiDocument {
   	
   	// set non book index and first image index to the same value because there is no book index at this point,
   	// which is usually located between these two indices.
-  	mobiHeader.setFirstNonBookIndex(firstContentIndex + contentRecords.size());
-  	mobiHeader.setFirstImageIndex(firstContentIndex + contentRecords.size());
+  	int mobiTextContentSize = chunkedMobiText.size() + 1;
+  	mobiHeader.setFirstNonBookIndex(firstContentIndex + mobiTextContentSize);
+  	mobiHeader.setFirstImageIndex(firstContentIndex + mobiTextContentSize);
   }
 
 	private Collection<MobiContent> toMobiContent(Collection<byte[]> chunkedMobiText) {
