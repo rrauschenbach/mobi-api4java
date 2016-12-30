@@ -75,7 +75,7 @@ public class MobiDocument {
 			throw new IllegalArgumentException("No image bytes available.");
 		} 
 		
-		MobiContent content= getCoverByType(CONTENT_TYPE.COVER);
+		MobiContent content = getCoverByType(CONTENT_TYPE.COVER);
 		if(content != null) {
 			content.setContent(image);
 		} else {
@@ -118,6 +118,9 @@ public class MobiDocument {
 			throw new IllegalArgumentException("Failed to create record type " + type);
 		}
 		mobiContents.add(mobiHeader.getFirstImageIndex() + indexAfterFirstImageRecord, content);
+		
+		// no need to adjust the indices before the cover but recalculate the others.
+		adjustIndices(mobiHeader.getFirstNonBookIndex(), mobiHeader.getFirstImageIndex());
 	}
 	
 	/**
@@ -130,6 +133,12 @@ public class MobiDocument {
 		return content != null ? content.getContent() : null; 
 	}
 	
+	/**
+	 * Get all images from the {@link MobiDocument} including the cover and the thumbnail
+	 * which can be fetched with the methods {@link #getCover()} and {@link #getThumbnail()}.
+	 * 
+	 * @return A list of all available images. Never returns <code>null</code>.
+	 */
 	public List<byte[]> getImages() {
 		List<MobiContent> imageContents = getImageContents();
 		List<byte[]> images = new ArrayList<>(imageContents.size());
@@ -160,16 +169,38 @@ public class MobiDocument {
 		return null;
 	}
 	
+	/**
+	 * Get the name of the {@link MobiDocument}. This is usually the book's title.
+	 * 
+	 * @return The name of the document. Never returns <code>null</code>.
+	 */
 	public String getFullName() {
 		return getMobiHeader().getFullName();
 	}
 	
+	/**
+	 * Set the name of the {@link MobiDocument}. This is usually the book's title.
+	 * 
+	 * @param name The name of the book.
+	 * @throws UnsupportedEncodingException Happens if the {@link MobiDocument} defines an erroneous character encoding. 
+	 * 						Check {@link #getCharacterEncoding()}.
+	 */
 	public void setFullName(String name) throws UnsupportedEncodingException {
 		getMobiHeader().setFullName(name);
 	}
 	
-	public String getCharacterEncoding() {
-		return mobiHeader.getCharacterEncoding();
+	/**
+	 * Get the character encoding for the {@link MobiDocument}. The returned value must be a valid value like 'UTF-8', 'UTF-16' or 'Cp1252'
+	 * 
+	 * @return The character encoding. Never returns <code>null</code>.
+	 * @throws UnsupportedEncodingException Happens if the {@link MobiDocument} defines an erroneous character encoding.
+	 */
+	public String getCharacterEncoding() throws UnsupportedEncodingException {
+		String characterEncoding = mobiHeader.getCharacterEncoding();
+		if(characterEncoding != null) {
+			return characterEncoding;	
+		}
+		throw new UnsupportedEncodingException("Invalid character encoding " + mobiHeader.getTextEncoding());
 	}
 	
 	/**
@@ -221,7 +252,7 @@ public class MobiDocument {
   	
   	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
-  	mobiContents.addAll(firstContentIndex, toMobiContent(chunkedMobiText));
+  	mobiContents.addAll(firstContentIndex, wrapToMobiContent(chunkedMobiText));
   	mobiContents.add(firstContentIndex + chunkedMobiText.size(), MobiContentRecordFactory.createEndOfTextRecord());
   	
   	mobiHeader.setTextLength(mobiText.length());
@@ -231,11 +262,10 @@ public class MobiDocument {
   	// set non book index and first image index to the same value because there is no book index at this point,
   	// which is usually located between these two indices.
   	int mobiTextContentSize = chunkedMobiText.size() + 1;
-  	mobiHeader.setFirstNonBookIndex(firstContentIndex + mobiTextContentSize);
-  	mobiHeader.setFirstImageIndex(firstContentIndex + mobiTextContentSize);
+  	adjustIndices(firstContentIndex + mobiTextContentSize, firstContentIndex + mobiTextContentSize);
   }
 
-	private Collection<MobiContent> toMobiContent(Collection<byte[]> chunkedMobiText) {
+	private Collection<MobiContent> wrapToMobiContent(Collection<byte[]> chunkedMobiText) {
 		return collect(chunkedMobiText, new Transformer<byte[], MobiContent>() {
 			
 			@Override
@@ -247,6 +277,14 @@ public class MobiDocument {
   
   private void removeContent(int firstContentIndex, int lastContentIndex) {
   	mobiContents.removeAll(mobiContents.subList(firstContentIndex, lastContentIndex));
+  }
+  
+  private void adjustIndices(int firstNonBookIndex, int firstImageIndex) {
+  	mobiHeader.setFirstNonBookIndex(firstNonBookIndex);
+  	mobiHeader.setFirstImageIndex(firstImageIndex);
+  	
+  	mobiHeader.setFcisRecordNumber(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FCIS));
+  	mobiHeader.setFlisRecordNumber(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FLIS));
   }
 
 }

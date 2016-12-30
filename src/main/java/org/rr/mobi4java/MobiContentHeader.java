@@ -22,6 +22,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class MobiContentHeader extends MobiContent {
 	
+	private static final int DEFAULT_HEADER_LENGTH = 264;
+	
+	/** Size of the extra bytes for the rest of mobi header*/
+	private static final int MOBI_HEADER_REST = 16;
+
 	public static final int DEFAULT_RECORD_SIZE = 4096;
 	
 	public static enum COMPRESSION_CODE {
@@ -50,12 +55,6 @@ public class MobiContentHeader extends MobiContent {
 			return type;
 		}
 	}
-	
-	/** Size of the extra bytes for the rest of mobi header*/
-	private static final int MOBI_HEADER_REST = 16;
-
-	/** Size of the beginning of the mobi header */
-	private static final int MOBI_HEADER_FIX_PART_LENGTH = 132;
 	
 	private int recordDataOffset;
 	private int recordDataLength;
@@ -94,8 +93,15 @@ public class MobiContentHeader extends MobiContent {
 	private int huffmanTableOffset;
 	private int huffmanTableLength;
 	private int exthFlags;
+	private int firstContentRecordNumber = 1;
+	private int lastContentRecordNumber = -1;
+	private int fcisRecordNumber;
+	private int fcisRecordCount;
+	private int flisRecordNumber;
+	private int flisRecordCount;
+	private int extraRecordDataFlags;
+	private int indxRecordOffset = -1;
 	
-	private byte[] restOfMobiHeader; // optional fields gathered here.
 	private EXTHHeader exthHeader;
 	private byte[] remainder;
 	// end of useful data
@@ -147,14 +153,38 @@ public class MobiContentHeader extends MobiContent {
 		huffmanTableOffset = getInt(content, 120, 4);
 		huffmanTableLength = getInt(content, 124, 4);
 		exthFlags = getInt(content, 128, 4);
-		restOfMobiHeader = getBytes(content, MOBI_HEADER_FIX_PART_LENGTH, (headerLength + MOBI_HEADER_REST) - (MOBI_HEADER_FIX_PART_LENGTH));
 		
+		// optional contents
+		if(headerLength >= 194) {
+			firstContentRecordNumber = getInt(content, 192, 2);
+		}
+		if(headerLength >= 196) {
+			lastContentRecordNumber = getInt(content, 194, 2);
+		}
+		if(headerLength >= 204) {
+			fcisRecordNumber = getInt(content, 200, 4);
+		}
+		if(headerLength >= 208) {
+			fcisRecordCount = getInt(content, 204, 4);
+		}
+		if(headerLength >= 212) {
+			flisRecordNumber = getInt(content, 208, 4);
+		}
+		if(headerLength >= 216) {
+			flisRecordCount = getInt(content, 212, 4);
+		}
+		if(headerLength >= 244) {
+			extraRecordDataFlags = getInt(content, 240, 4);
+		}
+		if(headerLength >= 248) {
+			indxRecordOffset = getInt(content, 244, 4);
+		}
+
 		if(exthExists()) {
 			exthHeader = new EXTHHeader(getHeaderLength()).readEXTHHeader(content);
 		}
 		
-		int restOfMobiHeaderLength = restOfMobiHeader.length;
-		int remainderOffsetStart = MOBI_HEADER_FIX_PART_LENGTH + exthHeaderSize() + restOfMobiHeaderLength;
+		int remainderOffsetStart = DEFAULT_HEADER_LENGTH + MOBI_HEADER_REST + exthHeaderSize();
 		int remainderOffsetLength = (int) recordDataLength - remainderOffsetStart;
 		remainder = getBytes(content, remainderOffsetStart, remainderOffsetLength);
 		
@@ -174,7 +204,7 @@ public class MobiContentHeader extends MobiContent {
 		writeInt(encryptionType, 2, tee);
 		writeInt(unused1, 2, tee);
 		writeString("MOBI", 4, tee);
-		writeInt(getHeaderLength() - MOBI_HEADER_REST,  4, tee); // headerLength
+		writeInt(DEFAULT_HEADER_LENGTH, 4, tee);
 		writeInt(mobiType, 4, tee);
 		writeInt(textEncoding, 4, tee);
 		writeInt(uniqueID, 4, tee);
@@ -202,8 +232,34 @@ public class MobiContentHeader extends MobiContent {
 		writeInt(huffmanTableOffset, 4, tee);
 		writeInt(huffmanTableLength, 4, tee);
 		writeInt(exthFlags, 4, tee);
-		write(restOfMobiHeader, getHeaderLength() - MOBI_HEADER_FIX_PART_LENGTH, tee);
 		
+		// optional header part with 148 bytes
+		write(new byte[32], tee); // Unknown 32 bytes
+		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
+		writeInt(-1, 4, tee); // DRM-Offset: No DRM
+		writeInt(0, 4, tee); // DRM-Count: No DRM
+		writeInt(0, 4, tee); // DRM-Size: No DRM
+		writeInt(0, 4, tee); // DRM-Flags: No DRM
+		write(new byte[8], tee); // Unknown
+		writeInt(firstContentRecordNumber, 2, tee);
+		writeInt(lastContentRecordNumber, 2, tee);
+		writeInt(1, 4, tee); // Unknown 0x00000001
+		writeInt(fcisRecordNumber, 4, tee);
+		writeInt(fcisRecordCount, 4, tee);
+		writeInt(flisRecordNumber, 4, tee);
+		writeInt(flisRecordCount, 4, tee);
+		write(new byte[8], tee); // Unknown 8 bytes
+		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
+		write(new byte[4], tee); // Unknown 4 bytes
+		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
+		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
+		writeInt(extraRecordDataFlags, 4, tee);
+		writeInt(indxRecordOffset, 4, tee);
+		writeInt(-1, 20, tee); // Unknown 24 bytes
+		writeInt(0, 4, tee); // Unknown
+		writeInt(-1, 4, tee); // Unknown
+		writeInt(0, 4, tee); // Unknown
+
 		if(exthExists()) {
 			exthHeader.writeEXTHHeader(tee);
 		}
@@ -214,7 +270,7 @@ public class MobiContentHeader extends MobiContent {
 	}
 
 	private int getHeaderLength() {
-		return MOBI_HEADER_FIX_PART_LENGTH + restOfMobiHeader.length;
+		return DEFAULT_HEADER_LENGTH + MOBI_HEADER_REST;
 	}
 	
 	public int getSize() {
@@ -247,10 +303,18 @@ public class MobiContentHeader extends MobiContent {
 		exthHeader.addRecord(exthRecord);
 	}
 
+	public int getTextEncoding() {
+		return textEncoding;
+	}
+
+	public void setTextEncoding(int textEncoding) {
+		this.textEncoding = textEncoding;
+	}
+
 	String getCharacterEncoding() {
 		return getCharacterEncoding(textEncoding);
 	}
-	
+
 	public String getFullName() {
 		int offset = fullNameOffset;
 		int length = fullNameLength;
@@ -278,7 +342,7 @@ public class MobiContentHeader extends MobiContent {
 
 		remainder = buffer;
 		// adjust fullNameOffset
-		fullNameOffset = MOBI_HEADER_FIX_PART_LENGTH + restOfMobiHeader.length + exthHeaderSize(); 
+		fullNameOffset = DEFAULT_HEADER_LENGTH + MOBI_HEADER_REST + exthHeaderSize(); 
 	}
 	
 	private int exthHeaderSize() {
@@ -340,14 +404,11 @@ public class MobiContentHeader extends MobiContent {
 	}
 
 	/**
-	 * Number of the first text record or -1 if no one is defined.
+	 * Number of the first text record which is usually 1.
 	 * @return The first content record.
 	 */
 	public int getFirstContentRecordNumber() {
-		if(getContent().length > 192 + 2) {
-			return getInt(getContent(), 192, 2);
-		}
-		return -1;		
+		return firstContentRecordNumber;
 	}
 	
 	/**
@@ -355,10 +416,7 @@ public class MobiContentHeader extends MobiContent {
 	 * @return The last content record.
 	 */
 	public int getLastContentRecordNumber() {
-		if(getContent().length > 194 + 2) {
-			return getInt(getContent(), 194, 2);
-		}
-		return -1;		
+		return lastContentRecordNumber;		
 	}
 
 	/**
@@ -402,6 +460,22 @@ public class MobiContentHeader extends MobiContent {
 	 */
 	public void setRecordSize(int recordSize) {
 		this.recordSize = recordSize;
+	}
+
+	public int getFcisRecordNumber() {
+		return fcisRecordNumber;
+	}
+
+	public void setFcisRecordNumber(int fcisRecordNumber) {
+		this.fcisRecordNumber = fcisRecordNumber;
+	}
+
+	public int getFlisRecordNumber() {
+		return flisRecordNumber;
+	}
+
+	public void setFlisRecordNumber(int flisRecordNumber) {
+		this.flisRecordNumber = flisRecordNumber;
 	}
 
 	@Override

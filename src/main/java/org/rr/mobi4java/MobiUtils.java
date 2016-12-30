@@ -69,6 +69,15 @@ class MobiUtils {
 		return result;
 	}
 	
+	static int findFirstContentsIndexByType(List<MobiContent> contents, CONTENT_TYPE type) {
+		for (int i=0; i < contents.size(); i++) {
+			if(contents.get(i).getType() == type) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	static List<StringRecordDelegate> createStringRecords(List<EXTHRecord> records, RECORD_TYPE type) {
 		List<EXTHRecord> stringRecords = MobiUtils.findRecordsByType(records, type);
 		List<StringRecordDelegate> stringRecordDelegates = new ArrayList<>(stringRecords.size());
