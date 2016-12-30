@@ -1,13 +1,13 @@
 package org.rr.mobi4java.util;
 
-import static junit.framework.Assert.assertEquals;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Test;
-import org.rr.mobi4java.util.MobiLz77;
 
 public class MobiLz77Test {
 	
