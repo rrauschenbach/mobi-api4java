@@ -5,7 +5,6 @@ import static org.rr.mobi4java.ByteUtils.chunk;
 import static org.rr.mobi4java.MobiUtils.removeRandomBytes;
 import static org.rr.mobi4java.MobiUtils.removeUtfReplacementCharacter;
 import static org.rr.mobi4java.util.MobiLz77.lz77Decode;
-import static org.rr.mobi4java.util.MobiLz77.lz77Encode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -247,8 +246,8 @@ public class MobiDocument {
   	// remove text content including a possible book index and a EOT record.
   	removeContent(firstContentIndex, Math.max(lastContentIndex, mobiHeader.getFirstImageIndex()));
   	
-  	byte[] encodedMobiText = lz77Encode(mobiText.getBytes(getCharacterEncoding()));
-  	mobiHeader.setCompressionCode(COMPRESSION_CODE.PALM_DOC);
+  	byte[] encodedMobiText = mobiText.getBytes(getCharacterEncoding());
+  	mobiHeader.setCompressionCode(COMPRESSION_CODE.NONE);
   	
   	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
   	
