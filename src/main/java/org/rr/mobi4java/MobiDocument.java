@@ -20,6 +20,9 @@ import org.rr.mobi4java.MobiContentHeader.COMPRESSION_CODE;
 
 
 public class MobiDocument {
+	
+	/** Max size of a text content record. If the text is longer than this size, the text must be chunked. */
+	private static final int DEFAULT_TEXT_CONTENT_RECORD_SIZE = 4096;
 
 	private PDBHeader pdbHeader;
 	
@@ -249,14 +252,14 @@ public class MobiDocument {
   	byte[] encodedMobiText = mobiText.getBytes(getCharacterEncoding());
   	mobiHeader.setCompressionCode(COMPRESSION_CODE.NONE);
   	
-  	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, MobiContentHeader.DEFAULT_RECORD_SIZE);
+  	Collection<byte[]> chunkedMobiText = chunk(encodedMobiText, DEFAULT_TEXT_CONTENT_RECORD_SIZE);
   	
   	mobiContents.addAll(firstContentIndex, wrapToMobiContent(chunkedMobiText));
   	mobiContents.add(firstContentIndex + chunkedMobiText.size(), MobiContentRecordFactory.createEndOfTextRecord());
   	
   	mobiHeader.setTextLength(mobiText.length());
   	mobiHeader.setRecordCount(chunkedMobiText.size());
-  	mobiHeader.setRecordSize(MobiContentHeader.DEFAULT_RECORD_SIZE);
+  	mobiHeader.setRecordSize(DEFAULT_TEXT_CONTENT_RECORD_SIZE);
   	
   	// set non book index and first image index to the same value because there is no book index at this point,
   	// which is usually located between these two indices.
@@ -282,8 +285,10 @@ public class MobiDocument {
   	mobiHeader.setFirstNonBookIndex(firstNonBookIndex);
   	mobiHeader.setFirstImageIndex(firstImageIndex);
   	
-  	mobiHeader.setFcisRecordNumber(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FCIS));
-  	mobiHeader.setFlisRecordNumber(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FLIS));
+  	mobiHeader.setFcisRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FCIS));
+  	mobiHeader.setFlisRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FLIS));
+  	mobiHeader.setSrcsRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.SRCS));
+  	mobiHeader.setDatpRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.DATP));
   }
 
 }

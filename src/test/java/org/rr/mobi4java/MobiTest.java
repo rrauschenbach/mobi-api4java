@@ -62,7 +62,6 @@ public class MobiTest {
 		assertEquals("2007-11-07", dateRecordDelegate.getAsString(UTF_8));
 		
 		assertEquals("de", doc.getMetaData().getLanguageRecord().getLanguageCode());
-		verifyRecordIndices(doc.getMobiHeader(), doc.getMobiContents());
 	}
 	
 	@Test
@@ -151,8 +150,12 @@ public class MobiTest {
 	}
 	
 	void verifyRecordIndices(MobiContentHeader mobiHeader, List<MobiContent> mobiContents ) {
-		assertEquals(MobiContent.CONTENT_TYPE.FCIS, mobiContents.get(mobiHeader.getFcisRecordNumber()).getType());
-		assertEquals(MobiContent.CONTENT_TYPE.FLIS, mobiContents.get(mobiHeader.getFlisRecordNumber()).getType());
+		assertEquals(MobiContent.CONTENT_TYPE.FCIS, mobiContents.get(mobiHeader.getFcisRecordIndex()).getType());
+		assertEquals(MobiContent.CONTENT_TYPE.FLIS, mobiContents.get(mobiHeader.getFlisRecordIndex()).getType());
+
+		if(mobiHeader.getSrcsRecordIndex() != -1) {
+			assertEquals(MobiContent.CONTENT_TYPE.SRCS, mobiContents.get(mobiHeader.getSrcsRecordIndex()).getType());
+		}
 	}
 	
 	private MobiDocument createReader(byte[] mobiData) throws IOException {

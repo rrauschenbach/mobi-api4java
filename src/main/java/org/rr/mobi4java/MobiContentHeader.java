@@ -27,8 +27,6 @@ public class MobiContentHeader extends MobiContent {
 	/** Size of the extra bytes for the rest of mobi header*/
 	private static final int MOBI_HEADER_REST = 16;
 
-	public static final int DEFAULT_RECORD_SIZE = 4096;
-	
 	public static enum COMPRESSION_CODE {
 		NONE(1), PALM_DOC(2), HUFF_CDIC(17480);
 		private final int type;
@@ -93,14 +91,20 @@ public class MobiContentHeader extends MobiContent {
 	private int huffmanTableOffset;
 	private int huffmanTableLength;
 	private int exthFlags;
-	private int firstContentRecordNumber = 1;
-	private int lastContentRecordNumber = -1;
-	private int fcisRecordNumber;
+	private int firstContentRecordIndex = 1;
+	private int lastContentRecordIndex = -1;
+	private int fcisRecordIndex;
 	private int fcisRecordCount;
-	private int flisRecordNumber;
+	private int flisRecordIndex;
+	private int srcsRecordIndex = -1;
+	private int srcsRecordCount;
 	private int flisRecordCount;
 	private int extraRecordDataFlags;
-	private int indxRecordOffset = -1;
+	private int indxRecordIndex = -1;
+	private int fragmentRecordIndex = -1;
+	private int skeletonRecordIndex = -1;
+	private int datpRecordIndex = -1;
+	private int guideIndex = -1;
 	
 	private EXTHHeader exthHeader;
 	private byte[] remainder;
@@ -156,32 +160,50 @@ public class MobiContentHeader extends MobiContent {
 		
 		// optional contents
 		if(headerLength >= 194) {
-			firstContentRecordNumber = getInt(content, 192, 2);
+			firstContentRecordIndex = getInt(content, 192, 2);
 		}
 		if(headerLength >= 196) {
-			lastContentRecordNumber = getInt(content, 194, 2);
+			lastContentRecordIndex = getInt(content, 194, 2);
 		}
 		if(headerLength >= 204) {
-			fcisRecordNumber = getInt(content, 200, 4);
+			fcisRecordIndex = getInt(content, 200, 4);
 		}
 		if(headerLength >= 208) {
 			fcisRecordCount = getInt(content, 204, 4);
 		}
 		if(headerLength >= 212) {
-			flisRecordNumber = getInt(content, 208, 4);
+			flisRecordIndex = getInt(content, 208, 4);
 		}
 		if(headerLength >= 216) {
 			flisRecordCount = getInt(content, 212, 4);
+		}
+		if(headerLength >= 228) {
+			srcsRecordIndex = getInt(content, 224, 4);
+		}
+		if(headerLength >= 232) {
+			srcsRecordCount = getInt(content, 228, 4);
 		}
 		if(headerLength >= 244) {
 			extraRecordDataFlags = getInt(content, 240, 4);
 		}
 		if(headerLength >= 248) {
-			indxRecordOffset = getInt(content, 244, 4);
+			indxRecordIndex = getInt(content, 244, 4);
+		}
+		if(headerLength >= 256) {
+			fragmentRecordIndex = getInt(content, 252, 4);
+		}
+		if(headerLength >= 264) {
+			skeletonRecordIndex = getInt(content, 260, 4);
+		}
+		if(headerLength >= 268) {
+			datpRecordIndex = getInt(content, 264, 4);
+		}
+		if(headerLength >= 276) {
+			datpRecordIndex = getInt(content, 272, 4);
 		}
 
 		if(exthExists()) {
-			exthHeader = new EXTHHeader(getHeaderLength()).readEXTHHeader(content);
+			exthHeader = new EXTHHeader(headerLength + MOBI_HEADER_REST).readEXTHHeader(content);
 		}
 		
 		int remainderOffsetStart = DEFAULT_HEADER_LENGTH + MOBI_HEADER_REST + exthHeaderSize();
@@ -241,23 +263,27 @@ public class MobiContentHeader extends MobiContent {
 		writeInt(0, 4, tee); // DRM-Size: No DRM
 		writeInt(0, 4, tee); // DRM-Flags: No DRM
 		write(new byte[8], tee); // Unknown
-		writeInt(firstContentRecordNumber, 2, tee);
-		writeInt(lastContentRecordNumber, 2, tee);
+		writeInt(firstContentRecordIndex, 2, tee);
+		writeInt(lastContentRecordIndex, 2, tee);
 		writeInt(1, 4, tee); // Unknown 0x00000001
-		writeInt(fcisRecordNumber, 4, tee);
+		writeInt(fcisRecordIndex, 4, tee);
 		writeInt(fcisRecordCount, 4, tee);
-		writeInt(flisRecordNumber, 4, tee);
+		writeInt(flisRecordIndex, 4, tee);
 		writeInt(flisRecordCount, 4, tee);
 		write(new byte[8], tee); // Unknown 8 bytes
-		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
-		write(new byte[4], tee); // Unknown 4 bytes
+		writeInt(srcsRecordIndex, 4, tee);
+		writeInt(srcsRecordCount, 4, tee);
 		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
 		writeInt(-1, 4, tee); // Unknown Use 0xFFFFFFFF
 		writeInt(extraRecordDataFlags, 4, tee);
-		writeInt(indxRecordOffset, 4, tee);
-		writeInt(-1, 20, tee); // Unknown 24 bytes
+		writeInt(indxRecordIndex, 4, tee);
+		writeInt(-1, 4, tee); // unknown
+		writeInt(fragmentRecordIndex, 4, tee);
+		writeInt(-1, 4, tee); // unknown
+		writeInt(skeletonRecordIndex, 4, tee);
+		writeInt(datpRecordIndex, 4, tee);
 		writeInt(0, 4, tee); // Unknown
-		writeInt(-1, 4, tee); // Unknown
+		writeInt(guideIndex, 4, tee); // Unknown
 		writeInt(0, 4, tee); // Unknown
 
 		if(exthExists()) {
@@ -407,16 +433,16 @@ public class MobiContentHeader extends MobiContent {
 	 * Number of the first text record which is usually 1.
 	 * @return The first content record.
 	 */
-	public int getFirstContentRecordNumber() {
-		return firstContentRecordNumber;
+	public int getFirstContentRecordIndex() {
+		return firstContentRecordIndex;
 	}
 	
 	/**
 	 * Number of the first text record or -1 if no one is defined.
 	 * @return The last content record.
 	 */
-	public int getLastContentRecordNumber() {
-		return lastContentRecordNumber;		
+	public int getLastContentRecordIndex() {
+		return lastContentRecordIndex;		
 	}
 
 	/**
@@ -462,20 +488,52 @@ public class MobiContentHeader extends MobiContent {
 		this.recordSize = recordSize;
 	}
 
-	public int getFcisRecordNumber() {
-		return fcisRecordNumber;
+	public int getFcisRecordIndex() {
+		return fcisRecordIndex;
 	}
 
-	public void setFcisRecordNumber(int fcisRecordNumber) {
-		this.fcisRecordNumber = fcisRecordNumber;
+	public void setFcisRecordIndex(int fcisRecordNumber) {
+		this.fcisRecordIndex = fcisRecordNumber;
 	}
 
-	public int getFlisRecordNumber() {
-		return flisRecordNumber;
+	public int getFlisRecordIndex() {
+		return flisRecordIndex;
 	}
 
-	public void setFlisRecordNumber(int flisRecordNumber) {
-		this.flisRecordNumber = flisRecordNumber;
+	public void setFlisRecordIndex(int flisRecordNumber) {
+		this.flisRecordIndex = flisRecordNumber;
+	}
+
+	public int getSrcsRecordIndex() {
+		return srcsRecordIndex;
+	}
+
+	public void setSrcsRecordIndex(int srcsRecordNumber) {
+		this.srcsRecordIndex = srcsRecordNumber;
+	}
+
+	public int getFragmentRecordIndex() {
+		return fragmentRecordIndex;
+	}
+
+	public void setFragmentRecordIndex(int fragmentIndex) {
+		this.fragmentRecordIndex = fragmentIndex;
+	}
+
+	public int getSceletonRecordIndex() {
+		return skeletonRecordIndex;
+	}
+
+	public void setSceletonRecordIndex(int sceletonIndex) {
+		this.skeletonRecordIndex = sceletonIndex;
+	}
+
+	public int getDatpRecordIndex() {
+		return datpRecordIndex;
+	}
+
+	public void setDatpRecordIndex(int datpIndex) {
+		this.datpRecordIndex = datpIndex;
 	}
 
 	@Override
