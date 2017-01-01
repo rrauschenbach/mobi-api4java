@@ -289,6 +289,8 @@ public class MobiDocument {
   	mobiHeader.setFlisRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.FLIS));
   	mobiHeader.setSrcsRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.SRCS));
   	mobiHeader.setDatpRecordIndex(MobiUtils.findFirstContentsIndexByType(mobiContents, MobiContent.CONTENT_TYPE.DATP));
+  	mobiHeader.setHuffmanRecordCount(0);
+  	mobiHeader.setHuffmanRecordOffset(0);
   }
 
 }

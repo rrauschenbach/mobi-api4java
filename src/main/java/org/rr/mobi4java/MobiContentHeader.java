@@ -309,6 +309,47 @@ public class MobiContentHeader extends MobiContent {
 		return getHeaderLength() + exthHeaderSize() + remainder.length;
 	}
 	
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("recordDataOffset", recordDataOffset)
+				.append("compression", getCompressionCode())
+				.append("unused0", unused0)
+				.append("textLength", textLength)
+				.append("recordCount", recordCount)
+				.append("recordSize", recordSize)
+				.append("encryptionType", encryptionType)
+				.append("unused1", unused1)
+				.append("mobiType", mobiType)
+				.append("textEncoding", getCharacterEncoding())
+				.append("uniqueID", uniqueID)
+				.append("fileVersion", fileVersion)
+				.append("orthographicIndex", orthographicIndex)
+				.append("inflectionIndex", inflectionIndex)
+				.append("indexNames", indexNames)
+				.append("indexKeys", indexKeys)
+				.append("extraIndex0", extraIndex0)
+				.append("extraIndex1", extraIndex1)
+				.append("extraIndex2", extraIndex2)
+				.append("extraIndex3", extraIndex3)
+				.append("extraIndex4", extraIndex4)
+				.append("extraIndex5", extraIndex5)
+				.append("firstNonBookIndex", firstNonBookIndex)
+				.append("fullNameOffset", fullNameOffset)
+				.append("fullNameLength", fullNameLength)
+				.append("locale", locale)
+				.append("inputLanguage", inputLanguage)
+				.append("outputLanguage", outputLanguage)
+				.append("minVersion", minVersion)
+				.append("firstImageIndex", firstImageIndex)
+				.append("huffmanRecordOffset", huffmanRecordOffset)
+				.append("huffmanRecordCount", huffmanRecordCount)
+				.append("huffmanTableOffset", huffmanTableOffset)
+				.append("huffmanTableLength", huffmanTableLength)
+				.append("exthFlags", exthFlags)
+		.toString();
+	}
+
 	private boolean exthExists() {
 		return (exthFlags & 0x40) != 0;
 	}
@@ -542,45 +583,20 @@ public class MobiContentHeader extends MobiContent {
 		this.datpRecordIndex = datpIndex;
 	}
 
-	@Override
-	public String toString() {
-		return new ToStringBuilder(this)
-				.append("recordDataOffset", recordDataOffset)
-				.append("compression", compression)
-				.append("unused0", unused0)
-				.append("textLength", textLength)
-				.append("recordCount", recordCount)
-				.append("recordSize", recordSize)
-				.append("encryptionType", encryptionType)
-				.append("unused1", unused1)
-				.append("mobiType", mobiType)
-				.append("textEncoding", getCharacterEncoding())
-				.append("uniqueID", uniqueID)
-				.append("fileVersion", fileVersion)
-				.append("orthographicIndex", orthographicIndex)
-				.append("inflectionIndex", inflectionIndex)
-				.append("indexNames", indexNames)
-				.append("indexKeys", indexKeys)
-				.append("extraIndex0", extraIndex0)
-				.append("extraIndex1", extraIndex1)
-				.append("extraIndex2", extraIndex2)
-				.append("extraIndex3", extraIndex3)
-				.append("extraIndex4", extraIndex4)
-				.append("extraIndex5", extraIndex5)
-				.append("firstNonBookIndex", firstNonBookIndex)
-				.append("fullNameOffset", fullNameOffset)
-				.append("fullNameLength", fullNameLength)
-				.append("locale", locale)
-				.append("inputLanguage", inputLanguage)
-				.append("outputLanguage", outputLanguage)
-				.append("minVersion", minVersion)
-				.append("firstImageIndex", firstImageIndex)
-				.append("huffmanRecordOffset", huffmanRecordOffset)
-				.append("huffmanRecordCount", huffmanRecordCount)
-				.append("huffmanTableOffset", huffmanTableOffset)
-				.append("huffmanTableLength", huffmanTableLength)
-				.append("exthFlags", exthFlags)
-		.toString();
+	public int getHuffmanRecordOffset() {
+		return huffmanRecordOffset;
+	}
+
+	public void setHuffmanRecordOffset(int huffmanRecordOffset) {
+		this.huffmanRecordOffset = huffmanRecordOffset;
+	}
+
+	public int getHuffmanRecordCount() {
+		return huffmanRecordCount;
+	}
+
+	public void setHuffmanRecordCount(int huffmanRecordCount) {
+		this.huffmanRecordCount = huffmanRecordCount;
 	}
 
 }

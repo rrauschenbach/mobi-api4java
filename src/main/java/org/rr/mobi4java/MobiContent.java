@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class MobiContent {
 	
 	public enum CONTENT_TYPE {
-		HEADER, CONTENT, INDEX, TAGX, FLIS, FCIS, FDST, DATP, SRCS, CMET, AUDI, VIDE, END_OF_TEXT, 
+		HEADER, CONTENT, INDEX, TAGX, TAG, IDXT, FLIS, FCIS, FDST, DATP, SRCS, CMET, AUDI, VIDE, END_OF_TEXT, 
 		COVER, THUMBNAIL, IMAGE, UNKNOWN
 	};
 	

@@ -32,7 +32,7 @@ class MobiContentRecordFactory {
 	static MobiContent readContent(byte[] mobiData, CONTENT_TYPE type, long recordDataOffset, long recordDataLength) throws IOException {
 		byte[] mobiContent = getBytes(mobiData, (int) recordDataOffset, (int) recordDataLength);
 		if(type == CONTENT_TYPE.INDEX) {
-			return new MobiIndex(mobiContent);
+			return new MobiContentIndex(mobiContent);
 		}
 		return create(mobiContent, type);
 	}
