@@ -56,25 +56,20 @@ public class MobiLz77 {
 		long compound;
 		byte[] temp = new byte[8];
 
-		while (i < b.length) {
+		outer: while (i < b.length) {
 			byte c = b[i];
 
 			if (i > 10 && b.length - i > 10) {
-				boolean found = false;
 				for (int chunkLength = 10; chunkLength > 2; chunkLength--) {
 					int j = find(b, i, chunkLength);
 					int dist = i - j;
 					if (j < i && dist <= 2047) {
-						found = true;
 						compound = ((dist << 3) + chunkLength - 3);
 						out.write((char) (0x80 + (compound >> 8)));
 						out.write((char) (compound & 0xFF));
 						i += chunkLength;
-						break;
+						continue outer;
 					}
-				}
-				if (found) {
-					continue;
 				}
 			}
 
