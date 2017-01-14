@@ -4,8 +4,10 @@ import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.rr.mobi4java.MobiTestUtils.*;
+import static org.rr.mobi4java.MobiTestUtils.createJpegCover;
+import static org.rr.mobi4java.MobiTestUtils.createReader;
 import static org.rr.mobi4java.MobiTestUtils.getResourceData;
+import static org.rr.mobi4java.MobiTestUtils.reReadDocument;
 import static org.rr.mobi4java.MobiTestUtils.readDoc;
 import static org.rr.mobi4java.MobiTestUtils.writeDoc;
 
