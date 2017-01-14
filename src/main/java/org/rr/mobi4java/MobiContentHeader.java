@@ -370,7 +370,7 @@ public class MobiContentHeader extends MobiContent {
 	}
 
 	public void addEXTHRecord(EXTHRecord exthRecord) {
-		if(exthHeader != null) {
+		if(exthHeader == null) {
 			exthHeader = new EXTHHeader(getHeaderLength());
 		}
 		exthHeader.addRecord(exthRecord);

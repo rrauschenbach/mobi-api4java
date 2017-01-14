@@ -68,14 +68,24 @@ class MobiUtils {
 		}
 		return result;
 	}
-	
+
 	static int findFirstContentsIndexByType(List<MobiContent> contents, CONTENT_TYPE type) {
-		for (int i=0; i < contents.size(); i++) {
-			if(contents.get(i).getType() == type) {
+		for (int i = 0; i < contents.size(); i++) {
+			if (contents.get(i).getType() == type) {
 				return i;
 			}
 		}
 		return -1;
+	}
+	
+	static List<Integer> findAllContentsIndexByType(List<MobiContent> contents, CONTENT_TYPE type) {
+		List<Integer> result = new ArrayList<>();
+		for (int i = 0; i < contents.size(); i++) {
+			if (contents.get(i).getType() == type) {
+				result.add(i);
+			}
+		}
+		return result;
 	}
 	
 	static List<StringRecordDelegate> createStringRecords(List<EXTHRecord> records, RECORD_TYPE type) {

@@ -97,7 +97,7 @@ public class MobiDocument {
 			throw new IllegalArgumentException("No image bytes available.");
 		}
 		
-		MobiContent content= getCoverByType(CONTENT_TYPE.THUMBNAIL);
+		MobiContent content = getCoverByType(CONTENT_TYPE.THUMBNAIL);
 		if(content != null) {
 			content.setContent(image);
 		} else {
@@ -123,6 +123,7 @@ public class MobiDocument {
 		
 		// no need to adjust the indices before the cover but recalculate the others.
 		adjustIndices(mobiHeader.getFirstNonBookIndex(), mobiHeader.getFirstImageIndex());
+		adjustCoverAndThumbnailOffsets(mobiHeader.getFirstImageIndex());
 	}
 	
 	/**
@@ -265,6 +266,7 @@ public class MobiDocument {
   	// which is usually located between these two indices.
   	int mobiTextContentSize = chunkedMobiText.size() + 1;
   	adjustIndices(firstContentIndex + mobiTextContentSize, firstContentIndex + mobiTextContentSize);
+  	adjustCoverAndThumbnailOffsets(mobiHeader.getFirstImageIndex());
   }
 
 	private Collection<MobiContent> wrapToMobiContent(Collection<byte[]> chunkedMobiText) {
@@ -292,5 +294,21 @@ public class MobiDocument {
   	mobiHeader.setHuffmanRecordCount(0);
   	mobiHeader.setHuffmanRecordOffset(0);
   }
+  
+  private void adjustCoverAndThumbnailOffsets(int firstImageIndex) {
+  	adjustExthOffsets(RECORD_TYPE.THUMBNAIL_OFFSET, CONTENT_TYPE.THUMBNAIL, firstImageIndex);
+  	adjustExthOffsets(RECORD_TYPE.COVER_OFFSET, CONTENT_TYPE.COVER, firstImageIndex);  	
+  }
+
+	private void adjustExthOffsets(RECORD_TYPE recordType, CONTENT_TYPE contentType, int firstImageIndex) {
+		List<EXTHRecord> exthRecords = mobiHeader.getEXTHRecords(recordType);
+  	List<Integer> indices = MobiUtils.findAllContentsIndexByType(mobiContents, contentType);
+  	if(exthRecords.size() != indices.size()) {
+  		throw new IllegalArgumentException(String.format("Found %s thumbnail header but %s really exists.", exthRecords.size(), indices.size()));
+  	}
+  	for (int i = 0; i < exthRecords.size(); i++) {
+  		exthRecords.get(i).setIntData(indices.get(i) - firstImageIndex);
+		}
+	}
 
 }
