@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.output.TeeOutputStream;
@@ -99,17 +100,31 @@ public class MobiContentIndex extends MobiContent {
 		indexCount = getInt(content, 24, 4); // entries count
 		indexEncoding = getInt(content, 28, 4);
 		indexLanguage = getInt(content, 32, 4);
-		totalIndexCount = getInt(content, 36, 4);
+		totalIndexCount = getInt(content, 36, 4); // total entries count
 		ordtIndex = getInt(content, 40, 4);
 		ligtIndex = getInt(content, 44, 4);
 		ordtLigtEntriesCount = getInt(content, 48, 4);
 		cncxRecordCount = getInt(content, 52, 4);
+		/* 60-148: phonetizer */
 		unknownIndxHeaderPart = getBytes(content, 56, headerLength - 56);
 		
+		int ordtType = getInt(content, 164, 4);
+		int ordtEntriesCount = getInt(content, 168, 4);
+		int ordt1Offset = getInt(content, 172, 4);
+		int ordt2Offset = getInt(content, 176, 4);
+		int entrySize = ordtType == 0 ? 1 : 2;
+		
 		int tagxIndex = getInt(content, 180, 4);
+		int tagxNameLength = getInt(content, 184, 4);
 		if(tagxIndex > 0) {
 			tagx = new MobiContentTagx(getBytes(content, tagxIndex));
-			MobiContentIdxt idxt = new MobiContentIdxt(getBytes(content, idxtIndex));
+			List<MobiContentTagEntry> tags = tagx.getTags();
+			for (MobiContentTagEntry tag : tags) {
+				int value = tag.getControlByte() & tag.getBitmask();
+			}
+			
+			
+			MobiContentIdxt idxt = new MobiContentIdxt(getBytes(content, idxtIndex), indexCount);
 			
 			rest = getBytes(content, tagxIndex + tagx.getSize());
 		} else {

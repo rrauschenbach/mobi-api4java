@@ -27,7 +27,7 @@ public class MobiContentTagx extends MobiContent {
 	
 	private byte[] tagTable;
 	
-	private List<MobiContentTag> tags;
+	private List<MobiContentTagEntry> tags;
 
 	MobiContentTagx(byte[] content) throws IOException {
 		super(content, CONTENT_TYPE.TAGX);
@@ -46,7 +46,7 @@ public class MobiContentTagx extends MobiContent {
 		
 		tags = new ArrayList<>(tagCount);
 		for (int i = 0; i < tagCount; i++) {
-			MobiContentTag mobiContentTag = new MobiContentTag(getBytes(content, 12 + (4 * i), 4));
+			MobiContentTagEntry mobiContentTag = new MobiContentTagEntry(getBytes(content, 12 + (4 * i), 4));
 			tags.add(mobiContentTag);
 		}
 	}
@@ -58,7 +58,7 @@ public class MobiContentTagx extends MobiContent {
 		writeString(IDENTIFIER, 4, tee);
 		writeInt(headerLength, 4, tee);
 		writeInt(controlByteCount, 4, tee);
-		for (MobiContentTag tag : tags) {
+		for (MobiContentTagEntry tag : tags) {
 			tag.writeContent(out);
 		}
 		return branch.toByteArray();
@@ -76,6 +76,14 @@ public class MobiContentTagx extends MobiContent {
 	@Override
 	public int getSize() {
 		return 12 + tagTable.length;
+	}
+
+	public List<MobiContentTagEntry> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<MobiContentTagEntry> tags) {
+		this.tags = tags;
 	}
 
 }

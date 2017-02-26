@@ -18,22 +18,27 @@ public class MobiContentIdxt extends MobiContent {
 	
 	private static final String IDENTIFIER = "IDXT";
 
-	private int indexEntriesIndex;
+	private int[] indexEntriesIndices;
 	
 	private int indexEntriesCount;
 	
-	MobiContentIdxt(byte[] content) throws IOException {
+	MobiContentIdxt(byte[] content, int entriesCount) throws IOException {
 		super(content, CONTENT_TYPE.IDXT);
-		readMobiIdxt();
+		readMobiIdxt(entriesCount);
 	}
 
-	private void readMobiIdxt() throws IOException {
+	private void readMobiIdxt(int entriesCount) throws IOException {
 		String identifier = getString(content, 0, 4);
 		if (negate(StringUtils.equals(identifier, IDENTIFIER))) {
 			throw new IOException("Expected to find IDXT header identifier IDXT but got '" + identifier + "' instead");
 		}
-		indexEntriesIndex = getInt(content, 4, 2);
-		indexEntriesCount = getInt(content, 6, 2);
+		
+		indexEntriesIndices = new int[entriesCount];
+		for (int i = 0; i < entriesCount; i++) {
+			indexEntriesIndices[i] = getInt(content, 4 + (i * 2), 2);
+		}
+		
+		indexEntriesCount = getInt(content, 4 + (indexEntriesIndices.length * 2), 2);
 	}
 	
 	@Override
@@ -41,7 +46,9 @@ public class MobiContentIdxt extends MobiContent {
 		ByteArrayOutputStream branch = new ByteArrayOutputStream();
 		TeeOutputStream tee = new TeeOutputStream(out, branch);
 		writeString(IDENTIFIER, 4, tee);
-		writeInt(indexEntriesIndex, 2, tee);
+		for (int indexEntriesIndex : indexEntriesIndices) {
+			writeInt(indexEntriesIndex, 2, tee);
+		}
 		writeInt(indexEntriesCount, 2, tee);
 		return branch.toByteArray();
 	}
@@ -51,7 +58,7 @@ public class MobiContentIdxt extends MobiContent {
 		return new ToStringBuilder(this)
 				.append("contentType", getType())
 				.append("identifier", IDENTIFIER)
-				.append("indexEntriesIndex", indexEntriesIndex)
+				.append("indexEntriesIndex", indexEntriesIndices)
 				.append("indexEntriesCount", indexEntriesCount)
 		.toString();
 	}
@@ -61,20 +68,12 @@ public class MobiContentIdxt extends MobiContent {
 		return 8;
 	}
 
-	public int getIndexEntriesIndex() {
-		return indexEntriesIndex;
-	}
-
-	public void setIndexEntriesIndex(int indexEntriesIndex) {
-		this.indexEntriesIndex = indexEntriesIndex;
+	public int[] getIndexEntriesIndex() {
+		return indexEntriesIndices;
 	}
 
 	public int getIndexEntriesCount() {
 		return indexEntriesCount;
-	}
-
-	public void setIndexEntriesCount(int indexEntriesCount) {
-		this.indexEntriesCount = indexEntriesCount;
 	}
 
 }
