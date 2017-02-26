@@ -1,6 +1,20 @@
+## Introduction
 As the name suggest, mobi-api4java is a java api to read, write and modify mobipocket (.mobi, .azw) files.
 
-## Maven
+At the current state the following features are supported.
+  * Access, change and add metadata
+  * Access and change the cover and thumbnail images
+  * Make changes to the text of the book.
+  
+Missing features.
+  * The books index is read but can not be accessed or changed.
+  * After changing the books text it is stored uncompressed. 
+
+## Get mobi-api4java
+### Download
+Download the latest jar from the [github maven repository](https://github.com/rrauschenbach/mobi-api4java/tree/mvn-repo/org/rr/mobi-api4java/0.0.2-SNAPSHOT). 
+
+### Maven
 Add the following to your pom to make mobi-api4java available in your project. Please take a look to the branch `mvn-repro` for the latest version.
 ```xml
 	<repository>
@@ -25,6 +39,7 @@ Add the following to your pom to make mobi-api4java available in your project. P
 The MobiReader and MobiWriter classes can be used to read and write mobi files.  
 ```java
 	MobiDocument mobiDoc = new MobiReader().read(new File("/tmp/sample.mobi"));
+	// do some changes to the mobi document
 	new MobiWriter().write(mobiDoc, new File("/tmp/sample_edit.mobi"));
 ```
 ### Dealing with metadata
@@ -37,7 +52,25 @@ Because the mobipocket format isn't documented it could be necessary to make use
 	mobiDoc.getMetaData().getISBNRecords()
 	// get the publisher
 	mobiDoc.getMetaData().getPublisherRecords()
-	
 	// and so on
+```
+
+Metadata can be be changed by setting a new value to them.
+```java
+	// get the author record and set a new value.
+	mobiDoc.getMetaData().getAuthorRecords().setStringData("Name of author");
+```
+
+Also new metadata can be added to a document.
+```java
+	// create a new record
+	EXTHRecord record = EXTHRecordFactory.createEXTHRecord(RECORD_TYPE.AUTHOR);
+	
+	// wrap the record into a StringRecordDelegate which makes it easier to use.
+	StringRecordDelegate stringRecord = new StringRecordDelegate(record);
+	stringRecord.setStringData("Name of author");
+	
+	// add the metadata record to the document.
+	mobiDoc.getMetaData().addEXTHRecord(stringRecord);
 ```
 ### 
